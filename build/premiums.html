@@ -8,21 +8,33 @@
 </head>
 
 <body>
-  <p class="header">Insureum<br> Plans</p>
+  <a href="/"><p class="header">Insureum<br> Plans</p></a>
 
-  <div class="plan">
-    <div class="plan-header">Premium Plan 1</div>
-    <button class="plan-button" id="send" onclick="App.payIn(.1)">Plan 1 covers you for 1 ether and has a monthly premium of <span class="price">.1 ether</span></button>
+  <div class="plan" style="">
+    <h2 style="color: salmon">Plan 1 - Basic</h2>
+    <br />
+    <div class="" ><b>Coverage:</b> 12 eth / year <br> <b>Premium:</b> <span class="price">.1 ether</span>/mo</div>
+    <br />
+    <button id="send" onclick="App.payIn(.1)" class="plan-header">Subscribe</button>
   </div>
+  
 
   <div class="plan">
-    <div class="plan-header">Premium Plan 2</div>
-    <button class="plan-button" id="send" onclick="App.payIn(.2)">Plan 2 covers you for 2 ether and has a monthly premium of <span class="price">.2 ether</span></button>
+    <h2 style="color: dodgerblue">Plan 2 - Complete</h2>
+    <br />
+    <div class="" ><b>Coverage:</b> 24 eth / year <br /><b>Premium: </b><span class="price">.2 ether</span>/mo</div>
+    <br />
+    <button id="send" onclick="App.payIn(.2)" class="plan-header">Subscribe</button>
   </div>
+  
 
   <div class="plan">
-    <div class="plan-header">Premium Plan 3</div>
-    <button class="plan-button" id="send" onclick="App.payIn(.3)">Plan 3 covers you for 3 ether and has a monthly premium of <span class="price">.3 ether</span></button>
+
+    <h2 style="color: magenta">Plan 3 - Safety</h2>
+    <br />
+    <div class="" ><b>Coverage:</b> 36 eth / year <br /> <b>Premium:</b><span class="price">.3 ether</span>/mo</div>
+    <br />
+    <button id="send" onclick="App.payIn(.3)" class="plan-header">Subscribe</button>
   </div>
 </body>
 </html>

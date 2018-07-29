@@ -1,51 +1,39 @@
-* {
-  margin: 0;
-  padding: 0;
 
-}
 
 body {
   font-family: 'Chivo', sans-serif;
 }
 
+.container{
+  position: relative;
+}
 
 a{ text-decoration: none; }
 
-.top-header {
-  width: 100vw;
-  height: 10vh;
-  background-color: #2FFB99;
-}
-
-.content {
-  width: 100vw;
-  height: 60vh;
-  background-color: #ffffff;
-  margin: 0 auto;
-}
-
-.bottom-header {
-  width: 100vw;
-  height: 30vh;
-  background-color: #2FFB99;
+.top-header{
+  
 }
 
 .header {
   padding-top: 5vh;
   padding-bottom: 5vh;
   display: block;
-  font-size: 10vw;
+  font-size: 4rem !important;
   text-align: center;
 }
 
+.bottom-header{
+  padding: 20px;
+}
+
+
+
 .info {
-  display: block;
-  font-size: 3vw;
-  width: 80vw;
   text-align: center;
   color: #272727;
-  margin: 0 auto;
   font-weight: 300;
+  margin: 0 auto; 
+  font-size: 2rem
 }
 
 .img-header {
@@ -55,7 +43,7 @@ a{ text-decoration: none; }
 }
 
 .button {
-  display: block;
+  /*display: block;*/
   /*margin: 0.5vh auto;*/
   /*padding: 1vh;*/
   /*width: 50vw;*/
@@ -69,9 +57,11 @@ a{ text-decoration: none; }
 }
 
 .button-text {
-  display: block;
+  /*display: block;*/
   text-align: center;
   font-weight: 300;
+  cursor: pointer;
+  
   /*transform: translateY(50%);*/
 }
 
@@ -79,20 +69,11 @@ a{ text-decoration: none; }
   width: 2vh;
 }
 
-.sub-header {
+/*.sub-header {
   text-align: center;
   font-weight: 300;
 }
-
-
-.header {
-    padding-top: 5vh;
-    padding-bottom: 5vh;
-    display: block;
-    font-size: 10vw;
-    text-align: center;
-}
-
+*/
 
 
 .arrow-svg {
@@ -120,21 +101,6 @@ a{ text-decoration: none; }
     /*background-color: #EDEDED;*/
 }
 
-
-
-.plan-button {
-    font-family: 'Chivo', sans-serif;
-    display: block;
-    margin: 0 auto;
-    padding: 0;
-    border: none;
-    background: white;
-    font-size: 4vw;
-    font-weight: 300;
-    padding: 1vh 1vw;
-    margin-top: 0.2vh;
-    cursor: pointer;
-}
 
 .plan-header:hover {
     background: #dfdfdf;

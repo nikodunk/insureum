@@ -5,37 +5,31 @@
     <title>Insureum</title>
     <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
     <link href='./build/stylesheets/app.css' rel='stylesheet' type='text/css'>
-    <script src="./build/javascripts/app.js"></script>
+    <script src="./app.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <div class="header">Insureum for hospitals</div>
-        <div class="sub-header">Premium transaction completed successfully</div>
-        <a href="#" class="button" data-amount="0.1">
-            <div class="button-text-container">
-                <p class="button-text">Continue
-                    <img class="arrow-svg" src="./build/img/arrow.svg">
-                </p>
-            </div>
-        </a>
-        <a href="#" class="button" data-amount="0.2">
-            <div class="button-text-container">
-                <p class="button-text">Continue
-                    <img class="arrow-svg" src="./build/img/arrow.svg">
-                </p>
-            </div>
-        </a>
-        <a href="#" class="button" data-amount="0.3">
-            <div class="button-text-container">
-                <p class="button-text">Continue
-                    <img class="arrow-svg" src="./build/img/arrow.svg">
-                </p>
-            </div>
-        </a>
+        <a href="/"><div class="header">Insureum for hospitals</div></a>
+
+        <div class="sub-header" id="input">Get Reimbursed</div>
+        <div style="max-width: 100px; margin: 0 auto">
+            <br /><br />
+            Patient account
+            <input class="input" id="input" placeholder="0x..." />
+            <br /><br />
+            Amount
+            <input class="input" id="input" placeholder="0.5 eth" />
+        </div>
+        <br / >
+        <div>
+            <button onclick="App.payOut()" style="margin-left: 65px; width: 200px" class="plan-header" data-amount="0.1">
+                    Claim <img class="arrow-svg" src="./build/img/arrow.svg">
+            </button>
+        </div>
     </div>
 </body>
-<script>
+<!-- <script>
     let elems = document.querySelector('.button');
     for(let elem in elems) {
         elem.addEventListener('click', (event) => {
@@ -43,5 +37,5 @@
         })
     }
 </script>
-
+ -->
 </html>

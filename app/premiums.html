@@ -5,36 +5,51 @@
   <link href="https://fonts.googleapis.com/css?family=Chivo:300,400" rel="stylesheet">
   <link href='./build/stylesheets/app.css' rel='stylesheet' type='text/css'>
   <script src="./app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 
 <body>
-  <a href="/"><p class="header">Insureum<br> Plans</p></a>
+  <div class="container" style="max-width: 800px; margin: 0 auto">
+    <a href="/">
+      <p class="header">Insureum<br> Plans</p>
+    </a>
 
-  <div class="plan" style="">
-    <p style="background-color: none !important;">Plan 1</p>
-    <br />
-    <div class="" ><b>Coverage:</b> 12 eth / year <br> <b>Premium:</b> <span class="price">.1 ether</span>/mo</div>
-    <br />
-    <button id="send" onclick="App.payIn(.1)" class="plan-header">Subscribe</button>
-  </div>
-  
+    <div class="plan" style="">
+      <h2 style="color: salmon">Plan 1 - Basic</h2>
+      <br />
+      <div class="" ><b>Coverage:</b> 12 eth / year <br> <b>Premium:</b> <span class="price">.1 ether</span>/mo</div>
+      <br />
+      <div id="send" onclick="App.payIn(.1)" style="background-color: salmon" class="button">
+        <p class="button-text">Subscribe</p>
+      </div>
+      <br />
+    </div>
+    
 
-  <div class="plan">
-    <p>Plan 2</p>
-    <br />
-    <div class="" ><b>Coverage:</b> 24 eth / year <br /><b>Premium: </b><span class="price">.2 ether</span>/mo</div>
-    <br />
-    <button id="send" onclick="App.payIn(.2)" class="plan-header">Subscribe</button>
-  </div>
-  
+    <div class="plan">
+      <h2 style="color: dodgerblue">Plan 2 - Complete</h2>
+      <br />
+      <div class="" ><b>Coverage:</b> 24 eth / year <br /><b>Premium: </b><span class="price">.2 ether</span>/mo</div>
+      <br />
+      <div id="send" onclick="App.payIn(.2)" style="background-color: dodgerblue" class="button">
+        <p class="button-text">Subscribe</p>
+      </div>
+      <br />
+    </div>
+    
 
-  <div class="plan">
+    <div class="plan">
 
-    <p>Plan 3</p>
-    <br />
-    <div class="" ><b>Coverage:</b> 36 eth / year <br /> <b>Premium:</b><span class="price">.3 ether</span>/mo</div>
-    <br />
-    <button id="send" onclick="App.payIn(.3)" class="plan-header">Subscribe</button>
+      <h2 style="color: magenta">Plan 3 - Safety</h2>
+      <br />
+      <div class="" ><b>Coverage:</b> 36 eth / year <br /> <b>Premium:</b><span class="price">.3 ether</span>/mo</div>
+      <br />
+      <div id="send" onclick="App.payIn(.3)" style="background-color: magenta" class="button">
+        <p class="button-text">Subscribe</p>
+      </div>
+      <br />
+    </div>
   </div>
 </body>
 </html>
