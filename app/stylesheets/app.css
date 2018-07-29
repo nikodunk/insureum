@@ -53,6 +53,8 @@ body {
   background-color: #fff;
   transform: translateY(35%);
   border-radius: 10px;
+  text-decoration: none;
+  color: black;
 }
 
 .button-text {

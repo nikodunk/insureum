@@ -2,11 +2,12 @@ pragma solidity ^0.4.17;
 
 contract Insureum {
 
-    // Events - publicize actions to external listeners
-    // event LogDepositMade(address accountAddress, uint amount);
+    mapping (address => uint) private balances;
 
-    function Purchase(address _seller, address _arbiter) public {
+    address public hospital;
 
+    function Insureum(address _seller, address _arbiter) public {
+        hospital = msg.sender;
     }
 
     function planOneTwoThree() public payable {
@@ -14,6 +15,7 @@ contract Insureum {
     }
 
     function payoutToHospital(uint amount) public {
+        // hospital require
         msg.sender.transfer(amount);
     }
 
