@@ -50,8 +50,8 @@ window.App = {
 
   getBalance: function() {
     var self = this;
-
     var meta;
+
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
       return meta.getBalance.call();
@@ -63,6 +63,29 @@ window.App = {
       console.log(e);
       self.setStatus("Error getting balance; see log.");
     });
+  },
+
+  payIn: function(var) {
+    var self = this;
+    var meta;
+    
+    MetaCoin.deployed().then(function(instance) {
+      meta = instance;
+      return meta.getBalance.call();
+    }).then(function(value) {
+      var balance_element = document.getElementById("balance");
+      balance_element.innerHTML = value.valueOf();
+      console.log(value.valueOf())
+    }).catch(function(e) {
+      console.log(e);
+      self.setStatus("Error getting balance; see log.");
+    });
+  },
+
+  payOut: function(var) {
+    var self = this;
+    var meta;
+
   },
 
 };
