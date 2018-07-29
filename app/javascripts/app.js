@@ -57,8 +57,7 @@ window.App = {
       return meta.getBalance.call();
     }).then(function(value) {
       var balance_element = document.getElementById("balance");
-      balance_element.innerHTML = value.valueOf();
-      console.log(value.valueOf())
+      balance_element.innerHTML = value.valueOf() / 1000000000000000000;
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error getting balance; see log.");
@@ -86,7 +85,8 @@ window.App = {
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.payoutToHospital({from: web3.eth.accounts[0]})
+      amount = document.getElementById("amount").value;
+      return meta.payoutToHospital(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
     }).then(function() {
       self.getBalance()
     }).catch(function(e) {
