@@ -10,7 +10,7 @@ contract Insureum {
         hospital = msg.sender;
     }
 
-    function planOneTwoThree() public payable returns (uint256) {
+    function PayInPremium() public payable returns (uint256) {
         // Here we are making sure that there isn't an overflow issue
         require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);
         insurancePlan[msg.sender] += msg.value;
@@ -26,7 +26,7 @@ contract Insureum {
          return address(this).balance;
      }
 
-    function getBalanceOfUser(address query) public constant returns (uint256) {
-        return insurancePlan[query];
+    function getBalanceOfUser() public constant returns (uint256) {
+        return insurancePlan[msg.sender];
     }
 }
