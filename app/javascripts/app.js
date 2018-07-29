@@ -48,15 +48,31 @@ window.App = {
     status.innerHTML = message;
   },
 
-  getBalance: function() {
+  getBalanceOfContract: function() {
     var self = this;
     var meta;
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.getBalance.call();
+      return meta.getBalanceOfContract.call();
     }).then(function(value) {
-      var balance_element = document.getElementById("balance");
+      var balance_element = document.getElementById("balanceOfContract");
+      balance_element.innerHTML = value.valueOf() / 1000000000000000000;
+    }).catch(function(e) {
+      console.log(e);
+      self.setStatus("Error getting balance; see log.");
+    });
+  },
+
+  getBalanceOfUser: function() {
+    var self = this;
+    var meta;
+
+    MetaCoin.deployed().then(function(instance) {
+      meta = instance;
+      return meta.getBalanceOfUser.call()
+    }).then(function(value) {
+      var balance_element = document.getElementById("balanceOfUser");
       balance_element.innerHTML = value.valueOf() / 1000000000000000000;
     }).catch(function(e) {
       console.log(e);
