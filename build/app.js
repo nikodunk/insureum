@@ -2386,7 +2386,7 @@ module.exports = {
  */
 
 
-var BigNumber = __webpack_require__(45);
+var BigNumber = __webpack_require__(49);
 var sha3 = __webpack_require__(32);
 var utf8 = __webpack_require__(61);
 
@@ -5704,9 +5704,9 @@ module.exports = {
  * @date 2015
  */
 
-var BigNumber = __webpack_require__(45);
+var BigNumber = __webpack_require__(49);
 var utils = __webpack_require__(3);
-var c = __webpack_require__(46);
+var c = __webpack_require__(45);
 var SolidityParam = __webpack_require__(83);
 
 
@@ -7041,8 +7041,8 @@ module.exports = SolidityType;
  */
 
 var utils = __webpack_require__(3);
-var config = __webpack_require__(46);
-var Iban = __webpack_require__(48);
+var config = __webpack_require__(45);
+var Iban = __webpack_require__(47);
 
 /**
  * Should the format output to a big number
@@ -16968,6 +16968,680 @@ module.exports = {
 /* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file config.js
+ * @authors:
+ *   Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+/**
+ * Utils
+ * 
+ * @module utils
+ */
+
+/**
+ * Utility functions
+ * 
+ * @class [utils] config
+ * @constructor
+ */
+
+
+/// required to define ETH_BIGNUMBER_ROUNDING_MODE
+var BigNumber = __webpack_require__(49);
+
+var ETH_UNITS = [
+    'wei',
+    'kwei',
+    'Mwei',
+    'Gwei',
+    'szabo',
+    'finney',
+    'femtoether',
+    'picoether',
+    'nanoether',
+    'microether',
+    'milliether',
+    'nano',
+    'micro',
+    'milli',
+    'ether',
+    'grand',
+    'Mether',
+    'Gether',
+    'Tether',
+    'Pether',
+    'Eether',
+    'Zether',
+    'Yether',
+    'Nether',
+    'Dether',
+    'Vether',
+    'Uether'
+];
+
+module.exports = {
+    ETH_PADDING: 32,
+    ETH_SIGNATURE_LENGTH: 4,
+    ETH_UNITS: ETH_UNITS,
+    ETH_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
+    ETH_POLLING_TIMEOUT: 1000/2,
+    defaultBlock: 'latest',
+    defaultAccount: undefined
+};
+
+
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file filter.js
+ * @authors:
+ *   Jeffrey Wilcke <jeff@ethdev.com>
+ *   Marek Kotewicz <marek@ethdev.com>
+ *   Marian Oancea <marian@ethdev.com>
+ *   Fabian Vogelsteller <fabian@ethdev.com>
+ *   Gav Wood <g@ethdev.com>
+ * @date 2014
+ */
+
+var formatters = __webpack_require__(13);
+var utils = __webpack_require__(3);
+
+/**
+* Converts a given topic to a hex string, but also allows null values.
+*
+* @param {Mixed} value
+* @return {String}
+*/
+var toTopic = function(value){
+
+    if(value === null || typeof value === 'undefined')
+        return null;
+
+    value = String(value);
+
+    if(value.indexOf('0x') === 0)
+        return value;
+    else
+        return utils.fromUtf8(value);
+};
+
+/// This method should be called on options object, to verify deprecated properties && lazy load dynamic ones
+/// @param should be string or object
+/// @returns options string or object
+var getOptions = function (options) {
+
+    if (utils.isString(options)) {
+        return options;
+    }
+
+    options = options || {};
+
+    // make sure topics, get converted to hex
+    options.topics = options.topics || [];
+    options.topics = options.topics.map(function(topic){
+        return (utils.isArray(topic)) ? topic.map(toTopic) : toTopic(topic);
+    });
+
+    return {
+        topics: options.topics,
+        from: options.from,
+        to: options.to,
+        address: options.address,
+        fromBlock: formatters.inputBlockNumberFormatter(options.fromBlock),
+        toBlock: formatters.inputBlockNumberFormatter(options.toBlock)
+    };
+};
+
+/**
+Adds the callback and sets up the methods, to iterate over the results.
+
+@method getLogsAtStart
+@param {Object} self
+@param {funciton}
+*/
+var getLogsAtStart = function(self, callback){
+    // call getFilterLogs for the first watch callback start
+    if (!utils.isString(self.options)) {
+        self.get(function (err, messages) {
+            // don't send all the responses to all the watches again... just to self one
+            if (err) {
+                callback(err);
+            }
+
+            if(utils.isArray(messages)) {
+                messages.forEach(function (message) {
+                    callback(null, message);
+                });
+            }
+        });
+    }
+};
+
+/**
+Adds the callback and sets up the methods, to iterate over the results.
+
+@method pollFilter
+@param {Object} self
+*/
+var pollFilter = function(self) {
+
+    var onMessage = function (error, messages) {
+        if (error) {
+            return self.callbacks.forEach(function (callback) {
+                callback(error);
+            });
+        }
+
+        if(utils.isArray(messages)) {
+            messages.forEach(function (message) {
+                message = self.formatter ? self.formatter(message) : message;
+                self.callbacks.forEach(function (callback) {
+                    callback(null, message);
+                });
+            });
+        }
+    };
+
+    self.requestManager.startPolling({
+        method: self.implementation.poll.call,
+        params: [self.filterId],
+    }, self.filterId, onMessage, self.stopWatching.bind(self));
+
+};
+
+var Filter = function (requestManager, options, methods, formatter, callback) {
+    var self = this;
+    var implementation = {};
+    methods.forEach(function (method) {
+        method.setRequestManager(requestManager);
+        method.attachToObject(implementation);
+    });
+    this.requestManager = requestManager;
+    this.options = getOptions(options);
+    this.implementation = implementation;
+    this.filterId = null;
+    this.callbacks = [];
+    this.getLogsCallbacks = [];
+    this.pollFilters = [];
+    this.formatter = formatter;
+    this.implementation.newFilter(this.options, function(error, id){
+        if(error) {
+            self.callbacks.forEach(function(cb){
+                cb(error);
+            });
+        } else {
+            self.filterId = id;
+
+            // check if there are get pending callbacks as a consequence
+            // of calling get() with filterId unassigned.
+            self.getLogsCallbacks.forEach(function (cb){
+                self.get(cb);
+            });
+            self.getLogsCallbacks = [];
+
+            // get filter logs for the already existing watch calls
+            self.callbacks.forEach(function(cb){
+                getLogsAtStart(self, cb);
+            });
+            if(self.callbacks.length > 0)
+                pollFilter(self);
+
+            // start to watch immediately
+            if(typeof callback === 'function') {
+                return self.watch(callback);
+            }
+        }
+    });
+
+    return this;
+};
+
+Filter.prototype.watch = function (callback) {
+    this.callbacks.push(callback);
+
+    if(this.filterId) {
+        getLogsAtStart(this, callback);
+        pollFilter(this);
+    }
+
+    return this;
+};
+
+Filter.prototype.stopWatching = function () {
+    this.requestManager.stopPolling(this.filterId);
+    // remove filter async
+    this.implementation.uninstallFilter(this.filterId, function(){});
+    this.callbacks = [];
+};
+
+Filter.prototype.get = function (callback) {
+    var self = this;
+    if (utils.isFunction(callback)) {
+        if (this.filterId === null) {
+            // If filterId is not set yet, call it back
+            // when newFilter() assigns it.
+            this.getLogsCallbacks.push(callback);
+        } else {
+            this.implementation.getLogs(this.filterId, function(err, res){
+                if (err) {
+                    callback(err);
+                } else {
+                    callback(null, res.map(function (log) {
+                        return self.formatter ? self.formatter(log) : log;
+                    }));
+                }
+            });
+        }
+    } else {
+        if (this.filterId === null) {
+            throw new Error('Filter ID Error: filter().get() can\'t be chained synchronous, please provide a callback for the get() method.');
+        }
+        var logs = this.implementation.getLogs(this.filterId);
+        return logs.map(function (log) {
+            return self.formatter ? self.formatter(log) : log;
+        });
+    }
+
+    return this;
+};
+
+module.exports = Filter;
+
+
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+ * @file iban.js
+ * @author Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+var BigNumber = __webpack_require__(49);
+
+var padLeft = function (string, bytes) {
+    var result = string;
+    while (result.length < bytes * 2) {
+        result = '00' + result;
+    }
+    return result;
+};
+
+/**
+ * Prepare an IBAN for mod 97 computation by moving the first 4 chars to the end and transforming the letters to
+ * numbers (A = 10, B = 11, ..., Z = 35), as specified in ISO13616.
+ *
+ * @method iso13616Prepare
+ * @param {String} iban the IBAN
+ * @returns {String} the prepared IBAN
+ */
+var iso13616Prepare = function (iban) {
+    var A = 'A'.charCodeAt(0);
+    var Z = 'Z'.charCodeAt(0);
+
+    iban = iban.toUpperCase();
+    iban = iban.substr(4) + iban.substr(0,4);
+
+    return iban.split('').map(function(n){
+        var code = n.charCodeAt(0);
+        if (code >= A && code <= Z){
+            // A = 10, B = 11, ... Z = 35
+            return code - A + 10;
+        } else {
+            return n;
+        }
+    }).join('');
+};
+
+/**
+ * Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
+ *
+ * @method mod9710
+ * @param {String} iban
+ * @returns {Number}
+ */
+var mod9710 = function (iban) {
+    var remainder = iban,
+        block;
+
+    while (remainder.length > 2){
+        block = remainder.slice(0, 9);
+        remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
+    }
+
+    return parseInt(remainder, 10) % 97;
+};
+
+/**
+ * This prototype should be used to create iban object from iban correct string
+ *
+ * @param {String} iban
+ */
+var Iban = function (iban) {
+    this._iban = iban;
+};
+
+/**
+ * This method should be used to create iban object from ethereum address
+ *
+ * @method fromAddress
+ * @param {String} address
+ * @return {Iban} the IBAN object
+ */
+Iban.fromAddress = function (address) {
+    var asBn = new BigNumber(address, 16);
+    var base36 = asBn.toString(36);
+    var padded = padLeft(base36, 15);
+    return Iban.fromBban(padded.toUpperCase());
+};
+
+/**
+ * Convert the passed BBAN to an IBAN for this country specification.
+ * Please note that <i>"generation of the IBAN shall be the exclusive responsibility of the bank/branch servicing the account"</i>.
+ * This method implements the preferred algorithm described in http://en.wikipedia.org/wiki/International_Bank_Account_Number#Generating_IBAN_check_digits
+ *
+ * @method fromBban
+ * @param {String} bban the BBAN to convert to IBAN
+ * @returns {Iban} the IBAN object
+ */
+Iban.fromBban = function (bban) {
+    var countryCode = 'XE';
+
+    var remainder = mod9710(iso13616Prepare(countryCode + '00' + bban));
+    var checkDigit = ('0' + (98 - remainder)).slice(-2);
+
+    return new Iban(countryCode + checkDigit + bban);
+};
+
+/**
+ * Should be used to create IBAN object for given institution and identifier
+ *
+ * @method createIndirect
+ * @param {Object} options, required options are "institution" and "identifier"
+ * @return {Iban} the IBAN object
+ */
+Iban.createIndirect = function (options) {
+    return Iban.fromBban('ETH' + options.institution + options.identifier);
+};
+
+/**
+ * Thos method should be used to check if given string is valid iban object
+ *
+ * @method isValid
+ * @param {String} iban string
+ * @return {Boolean} true if it is valid IBAN
+ */
+Iban.isValid = function (iban) {
+    var i = new Iban(iban);
+    return i.isValid();
+};
+
+/**
+ * Should be called to check if iban is correct
+ *
+ * @method isValid
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isValid = function () {
+    return /^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
+        mod9710(iso13616Prepare(this._iban)) === 1;
+};
+
+/**
+ * Should be called to check if iban number is direct
+ *
+ * @method isDirect
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isDirect = function () {
+    return this._iban.length === 34 || this._iban.length === 35;
+};
+
+/**
+ * Should be called to check if iban number if indirect
+ *
+ * @method isIndirect
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isIndirect = function () {
+    return this._iban.length === 20;
+};
+
+/**
+ * Should be called to get iban checksum
+ * Uses the mod-97-10 checksumming protocol (ISO/IEC 7064:2003)
+ *
+ * @method checksum
+ * @returns {String} checksum
+ */
+Iban.prototype.checksum = function () {
+    return this._iban.substr(2, 2);
+};
+
+/**
+ * Should be called to get institution identifier
+ * eg. XREG
+ *
+ * @method institution
+ * @returns {String} institution identifier
+ */
+Iban.prototype.institution = function () {
+    return this.isIndirect() ? this._iban.substr(7, 4) : '';
+};
+
+/**
+ * Should be called to get client identifier within institution
+ * eg. GAVOFYORK
+ *
+ * @method client
+ * @returns {String} client identifier
+ */
+Iban.prototype.client = function () {
+    return this.isIndirect() ? this._iban.substr(11) : '';
+};
+
+/**
+ * Should be called to get client direct address
+ *
+ * @method address
+ * @returns {String} client direct address
+ */
+Iban.prototype.address = function () {
+    if (this.isDirect()) {
+        var base36 = this._iban.substr(4);
+        var asBn = new BigNumber(base36, 36);
+        return padLeft(asBn.toString(16), 20);
+    } 
+
+    return '';
+};
+
+Iban.prototype.toString = function () {
+    return this._iban;
+};
+
+module.exports = Iban;
+
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file watches.js
+ * @authors:
+ *   Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+var Method = __webpack_require__(25);
+
+/// @returns an array of objects describing web3.eth.filter api methods
+var eth = function () {
+    var newFilterCall = function (args) {
+        var type = args[0];
+
+        switch(type) {
+            case 'latest':
+                args.shift();
+                this.params = 0;
+                return 'eth_newBlockFilter';
+            case 'pending':
+                args.shift();
+                this.params = 0;
+                return 'eth_newPendingTransactionFilter';
+            default:
+                return 'eth_newFilter';
+        }
+    };
+
+    var newFilter = new Method({
+        name: 'newFilter',
+        call: newFilterCall,
+        params: 1
+    });
+
+    var uninstallFilter = new Method({
+        name: 'uninstallFilter',
+        call: 'eth_uninstallFilter',
+        params: 1
+    });
+
+    var getLogs = new Method({
+        name: 'getLogs',
+        call: 'eth_getFilterLogs',
+        params: 1
+    });
+
+    var poll = new Method({
+        name: 'poll',
+        call: 'eth_getFilterChanges',
+        params: 1
+    });
+
+    return [
+        newFilter,
+        uninstallFilter,
+        getLogs,
+        poll
+    ];
+};
+
+/// @returns an array of objects describing web3.shh.watch api methods
+var shh = function () {
+    var newFilter = new Method({
+        name: 'newFilter',
+        call: 'shh_newFilter',
+        params: 1
+    });
+
+    var uninstallFilter = new Method({
+        name: 'uninstallFilter',
+        call: 'shh_uninstallFilter',
+        params: 1
+    });
+
+    var getLogs = new Method({
+        name: 'getLogs',
+        call: 'shh_getMessages',
+        params: 1
+    });
+
+    var poll = new Method({
+        name: 'poll',
+        call: 'shh_getFilterChanges',
+        params: 1
+    });
+
+    return [
+        newFilter,
+        uninstallFilter,
+        getLogs,
+        poll
+    ];
+};
+
+module.exports = {
+    eth: eth,
+    shh: shh
+};
+
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v2.0.7 https://github.com/MikeMcl/bignumber.js/LICENCE */
 
 ;(function (global) {
@@ -19653,680 +20327,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v2.0.7 https://github.com/Mik
         global.BigNumber = BigNumber;
     }
 })(this);
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file config.js
- * @authors:
- *   Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-/**
- * Utils
- * 
- * @module utils
- */
-
-/**
- * Utility functions
- * 
- * @class [utils] config
- * @constructor
- */
-
-
-/// required to define ETH_BIGNUMBER_ROUNDING_MODE
-var BigNumber = __webpack_require__(45);
-
-var ETH_UNITS = [
-    'wei',
-    'kwei',
-    'Mwei',
-    'Gwei',
-    'szabo',
-    'finney',
-    'femtoether',
-    'picoether',
-    'nanoether',
-    'microether',
-    'milliether',
-    'nano',
-    'micro',
-    'milli',
-    'ether',
-    'grand',
-    'Mether',
-    'Gether',
-    'Tether',
-    'Pether',
-    'Eether',
-    'Zether',
-    'Yether',
-    'Nether',
-    'Dether',
-    'Vether',
-    'Uether'
-];
-
-module.exports = {
-    ETH_PADDING: 32,
-    ETH_SIGNATURE_LENGTH: 4,
-    ETH_UNITS: ETH_UNITS,
-    ETH_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
-    ETH_POLLING_TIMEOUT: 1000/2,
-    defaultBlock: 'latest',
-    defaultAccount: undefined
-};
-
-
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file filter.js
- * @authors:
- *   Jeffrey Wilcke <jeff@ethdev.com>
- *   Marek Kotewicz <marek@ethdev.com>
- *   Marian Oancea <marian@ethdev.com>
- *   Fabian Vogelsteller <fabian@ethdev.com>
- *   Gav Wood <g@ethdev.com>
- * @date 2014
- */
-
-var formatters = __webpack_require__(13);
-var utils = __webpack_require__(3);
-
-/**
-* Converts a given topic to a hex string, but also allows null values.
-*
-* @param {Mixed} value
-* @return {String}
-*/
-var toTopic = function(value){
-
-    if(value === null || typeof value === 'undefined')
-        return null;
-
-    value = String(value);
-
-    if(value.indexOf('0x') === 0)
-        return value;
-    else
-        return utils.fromUtf8(value);
-};
-
-/// This method should be called on options object, to verify deprecated properties && lazy load dynamic ones
-/// @param should be string or object
-/// @returns options string or object
-var getOptions = function (options) {
-
-    if (utils.isString(options)) {
-        return options;
-    }
-
-    options = options || {};
-
-    // make sure topics, get converted to hex
-    options.topics = options.topics || [];
-    options.topics = options.topics.map(function(topic){
-        return (utils.isArray(topic)) ? topic.map(toTopic) : toTopic(topic);
-    });
-
-    return {
-        topics: options.topics,
-        from: options.from,
-        to: options.to,
-        address: options.address,
-        fromBlock: formatters.inputBlockNumberFormatter(options.fromBlock),
-        toBlock: formatters.inputBlockNumberFormatter(options.toBlock)
-    };
-};
-
-/**
-Adds the callback and sets up the methods, to iterate over the results.
-
-@method getLogsAtStart
-@param {Object} self
-@param {funciton}
-*/
-var getLogsAtStart = function(self, callback){
-    // call getFilterLogs for the first watch callback start
-    if (!utils.isString(self.options)) {
-        self.get(function (err, messages) {
-            // don't send all the responses to all the watches again... just to self one
-            if (err) {
-                callback(err);
-            }
-
-            if(utils.isArray(messages)) {
-                messages.forEach(function (message) {
-                    callback(null, message);
-                });
-            }
-        });
-    }
-};
-
-/**
-Adds the callback and sets up the methods, to iterate over the results.
-
-@method pollFilter
-@param {Object} self
-*/
-var pollFilter = function(self) {
-
-    var onMessage = function (error, messages) {
-        if (error) {
-            return self.callbacks.forEach(function (callback) {
-                callback(error);
-            });
-        }
-
-        if(utils.isArray(messages)) {
-            messages.forEach(function (message) {
-                message = self.formatter ? self.formatter(message) : message;
-                self.callbacks.forEach(function (callback) {
-                    callback(null, message);
-                });
-            });
-        }
-    };
-
-    self.requestManager.startPolling({
-        method: self.implementation.poll.call,
-        params: [self.filterId],
-    }, self.filterId, onMessage, self.stopWatching.bind(self));
-
-};
-
-var Filter = function (requestManager, options, methods, formatter, callback) {
-    var self = this;
-    var implementation = {};
-    methods.forEach(function (method) {
-        method.setRequestManager(requestManager);
-        method.attachToObject(implementation);
-    });
-    this.requestManager = requestManager;
-    this.options = getOptions(options);
-    this.implementation = implementation;
-    this.filterId = null;
-    this.callbacks = [];
-    this.getLogsCallbacks = [];
-    this.pollFilters = [];
-    this.formatter = formatter;
-    this.implementation.newFilter(this.options, function(error, id){
-        if(error) {
-            self.callbacks.forEach(function(cb){
-                cb(error);
-            });
-        } else {
-            self.filterId = id;
-
-            // check if there are get pending callbacks as a consequence
-            // of calling get() with filterId unassigned.
-            self.getLogsCallbacks.forEach(function (cb){
-                self.get(cb);
-            });
-            self.getLogsCallbacks = [];
-
-            // get filter logs for the already existing watch calls
-            self.callbacks.forEach(function(cb){
-                getLogsAtStart(self, cb);
-            });
-            if(self.callbacks.length > 0)
-                pollFilter(self);
-
-            // start to watch immediately
-            if(typeof callback === 'function') {
-                return self.watch(callback);
-            }
-        }
-    });
-
-    return this;
-};
-
-Filter.prototype.watch = function (callback) {
-    this.callbacks.push(callback);
-
-    if(this.filterId) {
-        getLogsAtStart(this, callback);
-        pollFilter(this);
-    }
-
-    return this;
-};
-
-Filter.prototype.stopWatching = function () {
-    this.requestManager.stopPolling(this.filterId);
-    // remove filter async
-    this.implementation.uninstallFilter(this.filterId, function(){});
-    this.callbacks = [];
-};
-
-Filter.prototype.get = function (callback) {
-    var self = this;
-    if (utils.isFunction(callback)) {
-        if (this.filterId === null) {
-            // If filterId is not set yet, call it back
-            // when newFilter() assigns it.
-            this.getLogsCallbacks.push(callback);
-        } else {
-            this.implementation.getLogs(this.filterId, function(err, res){
-                if (err) {
-                    callback(err);
-                } else {
-                    callback(null, res.map(function (log) {
-                        return self.formatter ? self.formatter(log) : log;
-                    }));
-                }
-            });
-        }
-    } else {
-        if (this.filterId === null) {
-            throw new Error('Filter ID Error: filter().get() can\'t be chained synchronous, please provide a callback for the get() method.');
-        }
-        var logs = this.implementation.getLogs(this.filterId);
-        return logs.map(function (log) {
-            return self.formatter ? self.formatter(log) : log;
-        });
-    }
-
-    return this;
-};
-
-module.exports = Filter;
-
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** 
- * @file iban.js
- * @author Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-var BigNumber = __webpack_require__(45);
-
-var padLeft = function (string, bytes) {
-    var result = string;
-    while (result.length < bytes * 2) {
-        result = '00' + result;
-    }
-    return result;
-};
-
-/**
- * Prepare an IBAN for mod 97 computation by moving the first 4 chars to the end and transforming the letters to
- * numbers (A = 10, B = 11, ..., Z = 35), as specified in ISO13616.
- *
- * @method iso13616Prepare
- * @param {String} iban the IBAN
- * @returns {String} the prepared IBAN
- */
-var iso13616Prepare = function (iban) {
-    var A = 'A'.charCodeAt(0);
-    var Z = 'Z'.charCodeAt(0);
-
-    iban = iban.toUpperCase();
-    iban = iban.substr(4) + iban.substr(0,4);
-
-    return iban.split('').map(function(n){
-        var code = n.charCodeAt(0);
-        if (code >= A && code <= Z){
-            // A = 10, B = 11, ... Z = 35
-            return code - A + 10;
-        } else {
-            return n;
-        }
-    }).join('');
-};
-
-/**
- * Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
- *
- * @method mod9710
- * @param {String} iban
- * @returns {Number}
- */
-var mod9710 = function (iban) {
-    var remainder = iban,
-        block;
-
-    while (remainder.length > 2){
-        block = remainder.slice(0, 9);
-        remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
-    }
-
-    return parseInt(remainder, 10) % 97;
-};
-
-/**
- * This prototype should be used to create iban object from iban correct string
- *
- * @param {String} iban
- */
-var Iban = function (iban) {
-    this._iban = iban;
-};
-
-/**
- * This method should be used to create iban object from ethereum address
- *
- * @method fromAddress
- * @param {String} address
- * @return {Iban} the IBAN object
- */
-Iban.fromAddress = function (address) {
-    var asBn = new BigNumber(address, 16);
-    var base36 = asBn.toString(36);
-    var padded = padLeft(base36, 15);
-    return Iban.fromBban(padded.toUpperCase());
-};
-
-/**
- * Convert the passed BBAN to an IBAN for this country specification.
- * Please note that <i>"generation of the IBAN shall be the exclusive responsibility of the bank/branch servicing the account"</i>.
- * This method implements the preferred algorithm described in http://en.wikipedia.org/wiki/International_Bank_Account_Number#Generating_IBAN_check_digits
- *
- * @method fromBban
- * @param {String} bban the BBAN to convert to IBAN
- * @returns {Iban} the IBAN object
- */
-Iban.fromBban = function (bban) {
-    var countryCode = 'XE';
-
-    var remainder = mod9710(iso13616Prepare(countryCode + '00' + bban));
-    var checkDigit = ('0' + (98 - remainder)).slice(-2);
-
-    return new Iban(countryCode + checkDigit + bban);
-};
-
-/**
- * Should be used to create IBAN object for given institution and identifier
- *
- * @method createIndirect
- * @param {Object} options, required options are "institution" and "identifier"
- * @return {Iban} the IBAN object
- */
-Iban.createIndirect = function (options) {
-    return Iban.fromBban('ETH' + options.institution + options.identifier);
-};
-
-/**
- * Thos method should be used to check if given string is valid iban object
- *
- * @method isValid
- * @param {String} iban string
- * @return {Boolean} true if it is valid IBAN
- */
-Iban.isValid = function (iban) {
-    var i = new Iban(iban);
-    return i.isValid();
-};
-
-/**
- * Should be called to check if iban is correct
- *
- * @method isValid
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isValid = function () {
-    return /^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
-        mod9710(iso13616Prepare(this._iban)) === 1;
-};
-
-/**
- * Should be called to check if iban number is direct
- *
- * @method isDirect
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isDirect = function () {
-    return this._iban.length === 34 || this._iban.length === 35;
-};
-
-/**
- * Should be called to check if iban number if indirect
- *
- * @method isIndirect
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isIndirect = function () {
-    return this._iban.length === 20;
-};
-
-/**
- * Should be called to get iban checksum
- * Uses the mod-97-10 checksumming protocol (ISO/IEC 7064:2003)
- *
- * @method checksum
- * @returns {String} checksum
- */
-Iban.prototype.checksum = function () {
-    return this._iban.substr(2, 2);
-};
-
-/**
- * Should be called to get institution identifier
- * eg. XREG
- *
- * @method institution
- * @returns {String} institution identifier
- */
-Iban.prototype.institution = function () {
-    return this.isIndirect() ? this._iban.substr(7, 4) : '';
-};
-
-/**
- * Should be called to get client identifier within institution
- * eg. GAVOFYORK
- *
- * @method client
- * @returns {String} client identifier
- */
-Iban.prototype.client = function () {
-    return this.isIndirect() ? this._iban.substr(11) : '';
-};
-
-/**
- * Should be called to get client direct address
- *
- * @method address
- * @returns {String} client direct address
- */
-Iban.prototype.address = function () {
-    if (this.isDirect()) {
-        var base36 = this._iban.substr(4);
-        var asBn = new BigNumber(base36, 36);
-        return padLeft(asBn.toString(16), 20);
-    } 
-
-    return '';
-};
-
-Iban.prototype.toString = function () {
-    return this._iban;
-};
-
-module.exports = Iban;
-
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file watches.js
- * @authors:
- *   Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-var Method = __webpack_require__(25);
-
-/// @returns an array of objects describing web3.eth.filter api methods
-var eth = function () {
-    var newFilterCall = function (args) {
-        var type = args[0];
-
-        switch(type) {
-            case 'latest':
-                args.shift();
-                this.params = 0;
-                return 'eth_newBlockFilter';
-            case 'pending':
-                args.shift();
-                this.params = 0;
-                return 'eth_newPendingTransactionFilter';
-            default:
-                return 'eth_newFilter';
-        }
-    };
-
-    var newFilter = new Method({
-        name: 'newFilter',
-        call: newFilterCall,
-        params: 1
-    });
-
-    var uninstallFilter = new Method({
-        name: 'uninstallFilter',
-        call: 'eth_uninstallFilter',
-        params: 1
-    });
-
-    var getLogs = new Method({
-        name: 'getLogs',
-        call: 'eth_getFilterLogs',
-        params: 1
-    });
-
-    var poll = new Method({
-        name: 'poll',
-        call: 'eth_getFilterChanges',
-        params: 1
-    });
-
-    return [
-        newFilter,
-        uninstallFilter,
-        getLogs,
-        poll
-    ];
-};
-
-/// @returns an array of objects describing web3.shh.watch api methods
-var shh = function () {
-    var newFilter = new Method({
-        name: 'newFilter',
-        call: 'shh_newFilter',
-        params: 1
-    });
-
-    var uninstallFilter = new Method({
-        name: 'uninstallFilter',
-        call: 'shh_uninstallFilter',
-        params: 1
-    });
-
-    var getLogs = new Method({
-        name: 'getLogs',
-        call: 'shh_getMessages',
-        params: 1
-    });
-
-    var poll = new Method({
-        name: 'poll',
-        call: 'shh_getFilterChanges',
-        params: 1
-    });
-
-    return [
-        newFilter,
-        uninstallFilter,
-        getLogs,
-        poll
-    ];
-};
-
-module.exports = {
-    eth: eth,
-    shh: shh
-};
-
 
 
 /***/ }),
@@ -31634,8 +31634,8 @@ var utils = __webpack_require__(3);
 var coder = __webpack_require__(59);
 var formatters = __webpack_require__(13);
 var sha3 = __webpack_require__(32);
-var Filter = __webpack_require__(47);
-var watches = __webpack_require__(49);
+var Filter = __webpack_require__(46);
+var watches = __webpack_require__(48);
 
 /**
  * This prototype should be used to create event filters
@@ -32383,7 +32383,7 @@ module.exports = Jsonrpc;
 /* 89 */
 /***/ (function(module, exports) {
 
-module.exports = {"contractName":"Insureum","abi":[{"constant":true,"inputs":[],"name":"hospital","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":false,"inputs":[],"name":"planOneTwoThree","outputs":[{"name":"","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"withdrawAmount","type":"uint256"}],"name":"claim","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"getBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}],"bytecode":"0x608060405234801561001057600080fd5b5033600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506104f8806100616000396000f300608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806312065fe014610067578063379607f51461009257806377826a9c146100b2578063aa2fedde146100d0575b600080fd5b34801561007357600080fd5b5061007c610127565b6040518082815260200191505060405180910390f35b6100b060048036038101908080359060200190929190505050610146565b005b6100ba610387565b6040518082815260200191505060405180910390f35b3480156100dc57600080fd5b506100e56104a6565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054811115151561019357600080fd5b806000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282540392505081905550600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561023b57600080fd5b60016000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541415610297576018811115151561029257600080fd5b61033d565b60026000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205414156102e35761033c565b600c6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054141561033b576003811115151561033a57600080fd5b5b5b5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f19350505050158015610383573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054011015151561041657600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820d668f2b8fcd3d573212a7d4c04fe59ef93093f17299ea824bd852400aa04d17e0029","deployedBytecode":"0x608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806312065fe014610067578063379607f51461009257806377826a9c146100b2578063aa2fedde146100d0575b600080fd5b34801561007357600080fd5b5061007c610127565b6040518082815260200191505060405180910390f35b6100b060048036038101908080359060200190929190505050610146565b005b6100ba610387565b6040518082815260200191505060405180910390f35b3480156100dc57600080fd5b506100e56104a6565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054811115151561019357600080fd5b806000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282540392505081905550600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561023b57600080fd5b60016000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541415610297576018811115151561029257600080fd5b61033d565b60026000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205414156102e35761033c565b600c6000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054141561033b576003811115151561033a57600080fd5b5b5b5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f19350505050158015610383573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054011015151561041657600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820d668f2b8fcd3d573212a7d4c04fe59ef93093f17299ea824bd852400aa04d17e0029","sourceMap":"28:1329:0:-;;;140:65;8:9:-1;5:2;;;30:1;27;20:12;5:2;140:65:0;188:10;177:8;;:21;;;;;;;;;;;;;;;;;;28:1329;;;;;;","deployedSourceMap":"28:1329:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1127:103;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1127:103:0;;;;;;;;;;;;;;;;;;;;;;;539:581;;;;;;;;;;;;;;;;;;;;;;;;;;212:320;;;;;;;;;;;;;;;;;;;;;;;109:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;109:23:0;;;;;;;;;;;;;;;;;;;;;;;;;;;1127:103;1174:7;1209:4;1201:21;;;1194:28;;1127:103;:::o;539:581::-;627:13;:25;641:10;627:25;;;;;;;;;;;;;;;;609:14;:43;;601:52;;;;;;;;693:14;664:13;:25;678:10;664:25;;;;;;;;;;;;;;;;:43;;;;;;;;;;;739:8;;;;;;;;;;;725:22;;:10;:22;;;717:31;;;;;;;;800:1;771:13;:25;785:10;771:25;;;;;;;;;;;;;;;;:30;767:293;;;842:7;824:14;:25;;816:34;;;;;;;;767:293;;;899:1;870:13;:25;884:10;870:25;;;;;;;;;;;;;;;;:30;867:193;;;;;;1000:7;971:13;:25;985:10;971:25;;;;;;;;;;;;;;;;:36;968:92;;;1047:1;1029:14;:19;;1021:28;;;;;;;;968:92;867:193;767:293;1078:10;:19;;:35;1098:14;1078:35;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;1078:35:0;539:581;:::o;212:320::-;263:7;405:13;:25;419:10;405:25;;;;;;;;;;;;;;;;391:9;363:13;:25;377:10;363:25;;;;;;;;;;;;;;;;:37;362:68;;354:77;;;;;;;;472:9;443:13;:25;457:10;443:25;;;;;;;;;;;;;;;;:38;;;;;;;;;;;500:13;:25;514:10;500:25;;;;;;;;;;;;;;;;493:32;;212:320;:::o;109:23::-;;;;;;;;;;;;;:::o","source":"pragma solidity ^0.4.17;\r\n\r\ncontract Insureum {\r\n\r\n   mapping (address => uint) private insurancePlan;\r\n\r\n   address public hospital;\r\n\r\n   function Insureum() public {\r\n       hospital = msg.sender;\r\n   }\r\n\r\n   function planOneTwoThree() public payable returns (uint256) {\r\n       // Here we are making sure that there isn’t an overflow issue\r\n       require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);\r\n\r\n       insurancePlan[msg.sender] += msg.value;\r\n\r\n       return insurancePlan[msg.sender];\r\n   }\r\n\r\n   function claim(uint withdrawAmount) public payable {\r\n        require(withdrawAmount <= insurancePlan[msg.sender]);\r\n        insurancePlan[msg.sender] -= withdrawAmount;\r\n       require(msg.sender == hospital);\r\n       \r\n       if (insurancePlan[msg.sender] == 1){\r\n           require(withdrawAmount <= 1*10^18);\r\n       } else if(insurancePlan[msg.sender] == 2){\r\n           //require(withdrawAmount <= 2*10^18);\r\n       } else if(insurancePlan[msg.sender] == 3*10^18){\r\n          require(withdrawAmount <= 3);\r\n       }\r\n       \r\n       msg.sender.transfer(withdrawAmount);\r\n   }\r\n\r\n   function getBalance() public constant returns (uint256) {\r\n        return address(this).balance;\r\n    }\r\n\r\n   //function getBalanceOfUser() public constant returns (uint256) {\r\n     //  return insurancePlan[msg.sender];\r\n   //}\r\n}\r\n","sourcePath":"C:\\Users\\sharm\\Documents\\insureum\\contracts\\Insureum.sol","ast":{"absolutePath":"/C/Users/sharm/Documents/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[144]},"id":145,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":144,"linearizedBaseContracts":[144],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":144,"src":"54:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"63:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"54:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"74:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":144,"src":"109:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"109:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"167:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"177:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"188:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"188:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"177:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"177:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"Insureum","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"157:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"167:0:0"},"scope":144,"src":"140:65:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"272:260:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"363:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"377:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"377:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"363:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"391:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"391:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"363:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"362:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"405:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"419:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"419:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"405:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"362:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"354:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"354:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"354:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"443:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"457:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"457:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"443:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"472:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"472:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"443:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"443:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"500:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"514:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"514:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"500:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"493:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"planOneTwoThree","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"236:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"263:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"263:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"262:9:0"},"scope":144,"src":"212:320:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":131,"nodeType":"Block","src":"590:530:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":62,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":57,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"609:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":58,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"627:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":61,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":59,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"641:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"641:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"627:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"609:43:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"601:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":63,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"601:52:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":64,"nodeType":"ExpressionStatement","src":"601:52:0"},{"expression":{"argumentTypes":null,"id":70,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":65,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"664:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":68,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":66,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"678:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"678:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"664:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"-=","rightHandSide":{"argumentTypes":null,"id":69,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"693:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"664:43:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":71,"nodeType":"ExpressionStatement","src":"664:43:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":76,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":73,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"725:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":74,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"725:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":75,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"739:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"725:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":72,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":77,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"717:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":78,"nodeType":"ExpressionStatement","src":"717:31:0"},{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":84,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":79,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"771:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":82,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":80,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"785:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":81,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"785:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"771:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"hexValue":"31","id":83,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"800:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_1_by_1","typeString":"int_const 1"},"value":"1"},"src":"771:30:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":101,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":96,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"870:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":99,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":97,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"884:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":98,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"884:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"870:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"hexValue":"32","id":100,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"899:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_2_by_1","typeString":"int_const 2"},"value":"2"},"src":"870:30:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":112,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":103,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"971:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":106,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":104,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"985:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":105,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"985:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"971:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_12_by_1","typeString":"int_const 12"},"id":111,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_30_by_1","typeString":"int_const 30"},"id":109,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"hexValue":"33","id":107,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1000:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_3_by_1","typeString":"int_const 3"},"value":"3"},"nodeType":"BinaryOperation","operator":"*","rightExpression":{"argumentTypes":null,"hexValue":"3130","id":108,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1002:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"value":"10"},"src":"1000:4:0","typeDescriptions":{"typeIdentifier":"t_rational_30_by_1","typeString":"int_const 30"}},"nodeType":"BinaryOperation","operator":"^","rightExpression":{"argumentTypes":null,"hexValue":"3138","id":110,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1005:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_18_by_1","typeString":"int_const 18"},"value":"18"},"src":"1000:7:0","typeDescriptions":{"typeIdentifier":"t_rational_12_by_1","typeString":"int_const 12"}},"src":"971:36:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":null,"id":120,"nodeType":"IfStatement","src":"968:92:0","trueBody":{"id":119,"nodeType":"Block","src":"1008:52:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":116,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":114,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"1029:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"hexValue":"33","id":115,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1047:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_3_by_1","typeString":"int_const 3"},"value":"3"},"src":"1029:19:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":113,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"1021:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":117,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1021:28:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":118,"nodeType":"ExpressionStatement","src":"1021:28:0"}]}},"id":121,"nodeType":"IfStatement","src":"867:193:0","trueBody":{"id":102,"nodeType":"Block","src":"901:61:0","statements":[]}},"id":122,"nodeType":"IfStatement","src":"767:293:0","trueBody":{"id":95,"nodeType":"Block","src":"802:59:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":92,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":86,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"824:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_24_by_1","typeString":"int_const 24"},"id":91,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"id":89,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"hexValue":"31","id":87,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"842:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_1_by_1","typeString":"int_const 1"},"value":"1"},"nodeType":"BinaryOperation","operator":"*","rightExpression":{"argumentTypes":null,"hexValue":"3130","id":88,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"844:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"value":"10"},"src":"842:4:0","typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"}},"nodeType":"BinaryOperation","operator":"^","rightExpression":{"argumentTypes":null,"hexValue":"3138","id":90,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"847:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_18_by_1","typeString":"int_const 18"},"value":"18"},"src":"842:7:0","typeDescriptions":{"typeIdentifier":"t_rational_24_by_1","typeString":"int_const 24"}},"src":"824:25:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":85,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"816:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":93,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"816:34:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":94,"nodeType":"ExpressionStatement","src":"816:34:0"}]}},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":128,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"1098:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":123,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"1078:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":126,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1078:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":127,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1078:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":129,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1078:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":130,"nodeType":"ExpressionStatement","src":"1078:35:0"}]},"documentation":null,"id":132,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":132,"src":"554:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"554:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"553:21:0"},"payable":true,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"590:0:0"},"scope":144,"src":"539:581:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":142,"nodeType":"Block","src":"1183:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":138,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":229,"src":"1209:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$144","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$144","typeString":"contract Insureum"}],"id":137,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"1201:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":139,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1201:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":140,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1201:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":136,"id":141,"nodeType":"Return","src":"1194:28:0"}]},"documentation":null,"id":143,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalance","nodeType":"FunctionDefinition","parameters":{"id":133,"nodeType":"ParameterList","parameters":[],"src":"1146:2:0"},"payable":false,"returnParameters":{"id":136,"nodeType":"ParameterList","parameters":[{"constant":false,"id":135,"name":"","nodeType":"VariableDeclaration","scope":143,"src":"1174:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":134,"name":"uint256","nodeType":"ElementaryTypeName","src":"1174:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"1173:9:0"},"scope":144,"src":"1127:103:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":145,"src":"28:1329:0"}],"src":"0:1359:0"},"legacyAST":{"absolutePath":"/C/Users/sharm/Documents/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[144]},"id":145,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":144,"linearizedBaseContracts":[144],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":144,"src":"54:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"63:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"54:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"74:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":144,"src":"109:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"109:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"167:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"177:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"188:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"188:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"177:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"177:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"Insureum","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"157:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"167:0:0"},"scope":144,"src":"140:65:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"272:260:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"363:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"377:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"377:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"363:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"391:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"391:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"363:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"362:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"405:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"419:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"419:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"405:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"362:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"354:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"354:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"354:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"443:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"457:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"457:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"443:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"472:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"472:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"443:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"443:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"500:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"514:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"514:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"500:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"493:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"planOneTwoThree","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"236:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"263:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"263:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"262:9:0"},"scope":144,"src":"212:320:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":131,"nodeType":"Block","src":"590:530:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":62,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":57,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"609:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":58,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"627:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":61,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":59,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"641:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"641:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"627:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"609:43:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"601:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":63,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"601:52:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":64,"nodeType":"ExpressionStatement","src":"601:52:0"},{"expression":{"argumentTypes":null,"id":70,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":65,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"664:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":68,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":66,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"678:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"678:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"664:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"-=","rightHandSide":{"argumentTypes":null,"id":69,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"693:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"664:43:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":71,"nodeType":"ExpressionStatement","src":"664:43:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":76,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":73,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"725:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":74,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"725:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":75,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"739:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"725:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":72,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":77,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"717:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":78,"nodeType":"ExpressionStatement","src":"717:31:0"},{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":84,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":79,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"771:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":82,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":80,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"785:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":81,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"785:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"771:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"hexValue":"31","id":83,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"800:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_1_by_1","typeString":"int_const 1"},"value":"1"},"src":"771:30:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":101,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":96,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"870:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":99,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":97,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"884:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":98,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"884:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"870:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"hexValue":"32","id":100,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"899:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_2_by_1","typeString":"int_const 2"},"value":"2"},"src":"870:30:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":{"condition":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":112,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":103,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"971:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":106,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":104,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"985:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":105,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"985:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"971:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_12_by_1","typeString":"int_const 12"},"id":111,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_30_by_1","typeString":"int_const 30"},"id":109,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"hexValue":"33","id":107,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1000:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_3_by_1","typeString":"int_const 3"},"value":"3"},"nodeType":"BinaryOperation","operator":"*","rightExpression":{"argumentTypes":null,"hexValue":"3130","id":108,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1002:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"value":"10"},"src":"1000:4:0","typeDescriptions":{"typeIdentifier":"t_rational_30_by_1","typeString":"int_const 30"}},"nodeType":"BinaryOperation","operator":"^","rightExpression":{"argumentTypes":null,"hexValue":"3138","id":110,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1005:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_18_by_1","typeString":"int_const 18"},"value":"18"},"src":"1000:7:0","typeDescriptions":{"typeIdentifier":"t_rational_12_by_1","typeString":"int_const 12"}},"src":"971:36:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}},"falseBody":null,"id":120,"nodeType":"IfStatement","src":"968:92:0","trueBody":{"id":119,"nodeType":"Block","src":"1008:52:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":116,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":114,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"1029:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"hexValue":"33","id":115,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"1047:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_3_by_1","typeString":"int_const 3"},"value":"3"},"src":"1029:19:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":113,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"1021:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":117,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1021:28:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":118,"nodeType":"ExpressionStatement","src":"1021:28:0"}]}},"id":121,"nodeType":"IfStatement","src":"867:193:0","trueBody":{"id":102,"nodeType":"Block","src":"901:61:0","statements":[]}},"id":122,"nodeType":"IfStatement","src":"767:293:0","trueBody":{"id":95,"nodeType":"Block","src":"802:59:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":92,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"id":86,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"824:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"<=","rightExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_24_by_1","typeString":"int_const 24"},"id":91,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"commonType":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"id":89,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"hexValue":"31","id":87,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"842:1:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_1_by_1","typeString":"int_const 1"},"value":"1"},"nodeType":"BinaryOperation","operator":"*","rightExpression":{"argumentTypes":null,"hexValue":"3130","id":88,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"844:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"},"value":"10"},"src":"842:4:0","typeDescriptions":{"typeIdentifier":"t_rational_10_by_1","typeString":"int_const 10"}},"nodeType":"BinaryOperation","operator":"^","rightExpression":{"argumentTypes":null,"hexValue":"3138","id":90,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"847:2:0","subdenomination":null,"typeDescriptions":{"typeIdentifier":"t_rational_18_by_1","typeString":"int_const 18"},"value":"18"},"src":"842:7:0","typeDescriptions":{"typeIdentifier":"t_rational_24_by_1","typeString":"int_const 24"}},"src":"824:25:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":85,"name":"require","nodeType":"Identifier","overloadedDeclarations":[219,220],"referencedDeclaration":219,"src":"816:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":93,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"816:34:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":94,"nodeType":"ExpressionStatement","src":"816:34:0"}]}},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":128,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"1098:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":123,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":216,"src":"1078:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":126,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1078:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":127,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1078:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":129,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1078:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":130,"nodeType":"ExpressionStatement","src":"1078:35:0"}]},"documentation":null,"id":132,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":132,"src":"554:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"554:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"553:21:0"},"payable":true,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"590:0:0"},"scope":144,"src":"539:581:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":142,"nodeType":"Block","src":"1183:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":138,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":229,"src":"1209:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$144","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$144","typeString":"contract Insureum"}],"id":137,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"1201:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":139,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"1201:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":140,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"1201:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":136,"id":141,"nodeType":"Return","src":"1194:28:0"}]},"documentation":null,"id":143,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalance","nodeType":"FunctionDefinition","parameters":{"id":133,"nodeType":"ParameterList","parameters":[],"src":"1146:2:0"},"payable":false,"returnParameters":{"id":136,"nodeType":"ParameterList","parameters":[{"constant":false,"id":135,"name":"","nodeType":"VariableDeclaration","scope":143,"src":"1174:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":134,"name":"uint256","nodeType":"ElementaryTypeName","src":"1174:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"1173:9:0"},"scope":144,"src":"1127:103:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":145,"src":"28:1329:0"}],"src":"0:1359:0"},"compiler":{"name":"solc","version":"0.4.24+commit.e67f0147.Emscripten.clang"},"networks":{"4447":{"events":{},"links":{},"address":"0x3a26973013a3945705ab54dab86b08ea20fe6d28","transactionHash":"0x65d37efb1f4d85f2fc17e99369477858be06ac48e11f90cd6a834c3a840bdee9"}},"schemaVersion":"2.0.1","updatedAt":"2018-07-29T17:32:22.724Z"}
+module.exports = {"contractName":"Insureum","abi":[{"constant":true,"inputs":[],"name":"hospital","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":false,"inputs":[],"name":"PayInPremium","outputs":[{"name":"","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"withdrawAmount","type":"uint256"}],"name":"claim","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getBalanceOfContract","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getBalanceOfUser","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}],"bytecode":"0x608060405234801561001057600080fd5b5033600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506103e6806100616000396000f30060806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029","deployedBytecode":"0x60806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029","sourceMap":"26:866:0:-;;;135:60;8:9:-1;5:2;;;30:1;27;20:12;5:2;135:60:0;178:10;167:8;;:21;;;;;;;;;;;;;;;;;;26:866;;;;;;","deployedSourceMap":"26:866:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;;;;;;;;;;;;;;;;;;;;;;;660:113;;8:9:-1;5:2;;;30:1;27;20:12;5:2;660:113:0;;;;;;;;;;;;;;;;;;;;;;;518:136;;8:9:-1;5:2;;;30:1;27;20:12;5:2;518:136:0;;;;;;;;;;;;;;;;;;;;;;;;;;779:111;;8:9:-1;5:2;;;30:1;27;20:12;5:2;779:111:0;;;;;;;;;;;;;;;;;;;;;;;105:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;105:23:0;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;249:7;389:13;:25;403:10;389:25;;;;;;;;;;;;;;;;375:9;347:13;:25;361:10;347:25;;;;;;;;;;;;;;;;:37;346:68;;338:77;;;;;;;;454:9;425:13;:25;439:10;425:25;;;;;;;;;;;;;;;;:38;;;;;;;;;;;480:13;:25;494:10;480:25;;;;;;;;;;;;;;;;473:32;;201:311;:::o;660:113::-;717:7;752:4;744:21;;;737:28;;660:113;:::o;518:136::-;593:8;;;;;;;;;;;579:22;;:10;:22;;;571:31;;;;;;;;612:10;:19;;:35;632:14;612:35;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;612:35:0;518:136;:::o;779:111::-;832:7;858:13;:25;872:10;858:25;;;;;;;;;;;;;;;;851:32;;779:111;:::o;105:23::-;;;;;;;;;;;;;:::o","source":"pragma solidity ^0.4.17;\n\ncontract Insureum {\n\n    mapping (address => uint) private insurancePlan;\n\n    address public hospital;\n\n    constructor () public {\n        hospital = msg.sender;\n    }\n\n    function PayInPremium() public payable returns (uint256) {\n        // Here we are making sure that there isn't an overflow issue\n        require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);\n        insurancePlan[msg.sender] += msg.value;\n        return insurancePlan[msg.sender];\n    }\n\n    function claim(uint withdrawAmount) public {\n        require(msg.sender == hospital);\n        msg.sender.transfer(withdrawAmount);\n    }\n\n    function getBalanceOfContract() public constant returns (uint256) {\n         return address(this).balance;\n     }\n\n    function getBalanceOfUser() public constant returns (uint256) {\n        return insurancePlan[msg.sender];\n    }\n}","sourcePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","ast":{"absolutePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[95]},"id":96,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":95,"linearizedBaseContracts":[95],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":95,"src":"51:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"60:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"51:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"71:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":95,"src":"105:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"105:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"157:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"167:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"178:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"178:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"167:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"167:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"147:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"157:0:0"},"scope":95,"src":"135:60:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"258:254:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"347:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"361:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"361:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"347:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"375:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"375:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"347:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"346:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"389:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"403:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"403:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"389:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"346:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"338:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"338:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"338:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"425:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"439:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"439:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"425:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"454:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"454:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"425:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"425:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"480:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"494:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"494:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"480:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"473:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"PayInPremium","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"222:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"249:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"249:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"248:9:0"},"scope":95,"src":"201:311:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":71,"nodeType":"Block","src":"561:93:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":57,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"579:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":58,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"579:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":59,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"593:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"579:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"571:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":61,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"571:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":62,"nodeType":"ExpressionStatement","src":"571:31:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":68,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"632:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":63,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"612:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":66,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":69,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"612:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":70,"nodeType":"ExpressionStatement","src":"612:35:0"}]},"documentation":null,"id":72,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":72,"src":"533:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"533:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"532:21:0"},"payable":false,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"561:0:0"},"scope":95,"src":"518:136:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":82,"nodeType":"Block","src":"726:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":78,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":123,"src":"752:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}],"id":77,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"744:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":79,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"744:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":80,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"744:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":76,"id":81,"nodeType":"Return","src":"737:28:0"}]},"documentation":null,"id":83,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfContract","nodeType":"FunctionDefinition","parameters":{"id":73,"nodeType":"ParameterList","parameters":[],"src":"689:2:0"},"payable":false,"returnParameters":{"id":76,"nodeType":"ParameterList","parameters":[{"constant":false,"id":75,"name":"","nodeType":"VariableDeclaration","scope":83,"src":"717:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":74,"name":"uint256","nodeType":"ElementaryTypeName","src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"716:9:0"},"scope":95,"src":"660:113:0","stateMutability":"view","superFunction":null,"visibility":"public"},{"body":{"id":93,"nodeType":"Block","src":"841:49:0","statements":[{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":88,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"858:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":91,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":89,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"872:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":90,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"872:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"858:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":87,"id":92,"nodeType":"Return","src":"851:32:0"}]},"documentation":null,"id":94,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfUser","nodeType":"FunctionDefinition","parameters":{"id":84,"nodeType":"ParameterList","parameters":[],"src":"804:2:0"},"payable":false,"returnParameters":{"id":87,"nodeType":"ParameterList","parameters":[{"constant":false,"id":86,"name":"","nodeType":"VariableDeclaration","scope":94,"src":"832:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":85,"name":"uint256","nodeType":"ElementaryTypeName","src":"832:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"831:9:0"},"scope":95,"src":"779:111:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":96,"src":"26:866:0"}],"src":"0:892:0"},"legacyAST":{"absolutePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[95]},"id":96,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":95,"linearizedBaseContracts":[95],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":95,"src":"51:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"60:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"51:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"71:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":95,"src":"105:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"105:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"157:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"167:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"178:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"178:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"167:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"167:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"147:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"157:0:0"},"scope":95,"src":"135:60:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"258:254:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"347:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"361:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"361:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"347:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"375:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"375:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"347:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"346:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"389:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"403:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"403:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"389:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"346:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"338:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"338:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"338:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"425:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"439:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"439:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"425:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"454:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"454:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"425:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"425:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"480:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"494:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"494:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"480:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"473:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"PayInPremium","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"222:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"249:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"249:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"248:9:0"},"scope":95,"src":"201:311:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":71,"nodeType":"Block","src":"561:93:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":57,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"579:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":58,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"579:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":59,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"593:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"579:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"571:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":61,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"571:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":62,"nodeType":"ExpressionStatement","src":"571:31:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":68,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"632:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":63,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"612:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":66,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":69,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"612:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":70,"nodeType":"ExpressionStatement","src":"612:35:0"}]},"documentation":null,"id":72,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":72,"src":"533:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"533:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"532:21:0"},"payable":false,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"561:0:0"},"scope":95,"src":"518:136:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":82,"nodeType":"Block","src":"726:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":78,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":123,"src":"752:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}],"id":77,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"744:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":79,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"744:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":80,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"744:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":76,"id":81,"nodeType":"Return","src":"737:28:0"}]},"documentation":null,"id":83,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfContract","nodeType":"FunctionDefinition","parameters":{"id":73,"nodeType":"ParameterList","parameters":[],"src":"689:2:0"},"payable":false,"returnParameters":{"id":76,"nodeType":"ParameterList","parameters":[{"constant":false,"id":75,"name":"","nodeType":"VariableDeclaration","scope":83,"src":"717:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":74,"name":"uint256","nodeType":"ElementaryTypeName","src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"716:9:0"},"scope":95,"src":"660:113:0","stateMutability":"view","superFunction":null,"visibility":"public"},{"body":{"id":93,"nodeType":"Block","src":"841:49:0","statements":[{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":88,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"858:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":91,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":89,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"872:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":90,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"872:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"858:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":87,"id":92,"nodeType":"Return","src":"851:32:0"}]},"documentation":null,"id":94,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfUser","nodeType":"FunctionDefinition","parameters":{"id":84,"nodeType":"ParameterList","parameters":[],"src":"804:2:0"},"payable":false,"returnParameters":{"id":87,"nodeType":"ParameterList","parameters":[{"constant":false,"id":86,"name":"","nodeType":"VariableDeclaration","scope":94,"src":"832:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":85,"name":"uint256","nodeType":"ElementaryTypeName","src":"832:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"831:9:0"},"scope":95,"src":"779:111:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":96,"src":"26:866:0"}],"src":"0:892:0"},"compiler":{"name":"solc","version":"0.4.24+commit.e67f0147.Emscripten.clang"},"networks":{"4447":{"events":{},"links":{},"address":"0x3a26973013a3945705ab54dab86b08ea20fe6d28","transactionHash":"0x65d37efb1f4d85f2fc17e99369477858be06ac48e11f90cd6a834c3a840bdee9"}},"schemaVersion":"2.0.1","updatedAt":"2018-07-29T18:21:42.982Z"}
 
 /***/ }),
 /* 90 */
@@ -43283,7 +43283,7 @@ module.exports = TruffleSchema;
 /* 179 */
 /***/ (function(module, exports) {
 
-module.exports = {"_from":"truffle-contract-schema@0.0.5","_id":"truffle-contract-schema@0.0.5","_inBundle":false,"_integrity":"sha1-Xp0gvQvyon/pQxB0gknUhO7kmWE=","_location":"/truffle-contract-schema","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"truffle-contract-schema@0.0.5","name":"truffle-contract-schema","escapedName":"truffle-contract-schema","rawSpec":"0.0.5","saveSpec":null,"fetchSpec":"0.0.5"},"_requiredBy":["/truffle-contract"],"_resolved":"https://registry.npmjs.org/truffle-contract-schema/-/truffle-contract-schema-0.0.5.tgz","_shasum":"5e9d20bd0bf2a27fe94310748249d484eee49961","_spec":"truffle-contract-schema@0.0.5","_where":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/node_modules/truffle-contract","author":{"name":"Tim Coulter","email":"tim.coulter@consensys.net"},"bugs":{"url":"https://github.com/trufflesuite/truffle-schema/issues"},"bundleDependencies":false,"dependencies":{"crypto-js":"^3.1.9-1"},"deprecated":false,"description":"JSON schema for contract artifacts","devDependencies":{"mocha":"^3.2.0"},"homepage":"https://github.com/trufflesuite/truffle-schema#readme","keywords":["ethereum","json","schema","contract","artifacts"],"license":"MIT","main":"index.js","name":"truffle-contract-schema","repository":{"type":"git","url":"git+https://github.com/trufflesuite/truffle-schema.git"},"scripts":{"test":"mocha"},"version":"0.0.5"}
+module.exports = {"_args":[["truffle-contract-schema@0.0.5","/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum"]],"_development":true,"_from":"truffle-contract-schema@0.0.5","_id":"truffle-contract-schema@0.0.5","_inBundle":false,"_integrity":"sha1-Xp0gvQvyon/pQxB0gknUhO7kmWE=","_location":"/truffle-contract-schema","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"truffle-contract-schema@0.0.5","name":"truffle-contract-schema","escapedName":"truffle-contract-schema","rawSpec":"0.0.5","saveSpec":null,"fetchSpec":"0.0.5"},"_requiredBy":["/truffle-contract"],"_resolved":"https://registry.npmjs.org/truffle-contract-schema/-/truffle-contract-schema-0.0.5.tgz","_spec":"0.0.5","_where":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum","author":{"name":"Tim Coulter","email":"tim.coulter@consensys.net"},"bugs":{"url":"https://github.com/trufflesuite/truffle-schema/issues"},"dependencies":{"crypto-js":"^3.1.9-1"},"description":"JSON schema for contract artifacts","devDependencies":{"mocha":"^3.2.0"},"homepage":"https://github.com/trufflesuite/truffle-schema#readme","keywords":["ethereum","json","schema","contract","artifacts"],"license":"MIT","main":"index.js","name":"truffle-contract-schema","repository":{"type":"git","url":"git+https://github.com/trufflesuite/truffle-schema.git"},"scripts":{"test":"mocha"},"version":"0.0.5"}
 
 /***/ }),
 /* 180 */
@@ -44520,7 +44520,7 @@ module.exports = {"version":"0.16.0"}
  */
 
 var RequestManager = __webpack_require__(210);
-var Iban = __webpack_require__(48);
+var Iban = __webpack_require__(47);
 var Eth = __webpack_require__(205);
 var DB = __webpack_require__(204);
 var Shh = __webpack_require__(208);
@@ -44670,8 +44670,8 @@ var sha3 = __webpack_require__(32);
 var SolidityEvent = __webpack_require__(84);
 var formatters = __webpack_require__(13);
 var utils = __webpack_require__(3);
-var Filter = __webpack_require__(47);
-var watches = __webpack_require__(49);
+var Filter = __webpack_require__(46);
+var watches = __webpack_require__(48);
 
 var AllSolidityEvents = function (requestManager, json, address) {
     this._requestManager = requestManager;
@@ -45890,13 +45890,13 @@ var formatters = __webpack_require__(13);
 var utils = __webpack_require__(3);
 var Method = __webpack_require__(25);
 var Property = __webpack_require__(34);
-var c = __webpack_require__(46);
+var c = __webpack_require__(45);
 var Contract = __webpack_require__(199);
-var watches = __webpack_require__(49);
-var Filter = __webpack_require__(47);
+var watches = __webpack_require__(48);
+var Filter = __webpack_require__(46);
 var IsSyncing = __webpack_require__(212);
 var namereg = __webpack_require__(209);
-var Iban = __webpack_require__(48);
+var Iban = __webpack_require__(47);
 var transfer = __webpack_require__(213);
 
 var blockCall = function (args) {
@@ -46384,8 +46384,8 @@ module.exports = Personal;
 
 var Method = __webpack_require__(25);
 var formatters = __webpack_require__(13);
-var Filter = __webpack_require__(47);
-var watches = __webpack_require__(49);
+var Filter = __webpack_require__(46);
+var watches = __webpack_require__(48);
 
 var Shh = function (web3) {
     this._requestManager = web3._requestManager;
@@ -46525,7 +46525,7 @@ module.exports = {
 
 var Jsonrpc = __webpack_require__(85);
 var utils = __webpack_require__(3);
-var c = __webpack_require__(46);
+var c = __webpack_require__(45);
 var errors = __webpack_require__(33);
 
 /**
@@ -46904,7 +46904,7 @@ module.exports = IsSyncing;
  * @date 2015
  */
 
-var Iban = __webpack_require__(48);
+var Iban = __webpack_require__(47);
 var exchangeAbi = __webpack_require__(184);
 
 /**
