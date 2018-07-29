@@ -6,32 +6,31 @@ contract Insureum {
 
     address public hospital;
 
-    function Insureum(address _seller, address _arbiter) public {
+    constructor () public {
         hospital = msg.sender;
     }
 
-    function planOneTwoThree() public payable {
+    function planOneTwoThree() public payable returns (uint256) {
         // Here we are making sure that there isn't an overflow issue
         require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);
 
         insurancePlan[msg.sender] += msg.value;
 
-        return insurancePlan[msg.sender];   
+        return insurancePlan[msg.sender];
     }
 
-    function payoutToHospital(uint withdrawAmount) public {
-        
-        require(withdrawAmount <= balances[msg.sender]);
+    function claim(uint withdrawAmount) public {
+        // require(withdrawAmount <= insurancePlan[msg.sender]);
         // insurancePlan[msg.sender] -= withdrawAmount;
-        require(msg.sender == hospital)
+        require(msg.sender == hospital);
         msg.sender.transfer(withdrawAmount);
     }
 
     function getBalance() public constant returns (uint) {
-        return this.balance;
-    }
+         return address(this).balance;
+     }
 
-    function getBalanceOfUser(address) public constant returns (uint) {
-        return balances[msg.sender];
+    function getBalanceOfUser(address) public constant returns (uint256) {
+        return insurancePlan[msg.sender];
     }
 }

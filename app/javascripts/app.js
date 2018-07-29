@@ -87,7 +87,7 @@ window.App = {
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
       amount = document.getElementById("amount").value;
-      return meta.payoutToHospital(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
+      return meta.claim(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
     }).then(function() {
       self.getBalance()
     }).catch(function(e) {
