@@ -1,36 +1,27 @@
 pragma solidity ^0.4.17;
 
 contract Insureum {
-    address public seller;
-    address public buyer;
-    address public arbiter;
 
+    // Events - publicize actions to external listeners
+    // event LogDepositMade(address accountAddress, uint amount);
 
     function Purchase(address _seller, address _arbiter) public {
-        buyer = msg.sender;
-        seller = _seller;
-        arbiter = _arbiter;
-    }
-
-    function payIn() public payable {
 
     }
 
-    /// Confirm that you (the buyer) received the item.
-    /// This will release the locked ether.
-    function payoutToSeller() public {
-        if(msg.sender == buyer || msg.sender == arbiter ){
-            seller.transfer(this.balance);
-        }
+    function planOneTwoThree() public payable {
+      
     }
 
-    function payoutToBuyer() public {
-        if(msg.sender == seller || msg.sender == arbiter ){
-            buyer.transfer(this.balance);
-        }
+    function payoutToHospital(uint amount) public {
+        msg.sender.transfer(amount);
     }
 
     function getBalance() public constant returns (uint) {
+        return this.balance;
+    }
+
+    function getBalanceOfUser(address) public constant returns (uint) {
         return this.balance;
     }
 }
