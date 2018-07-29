@@ -3,16 +3,19 @@
 <head>
   <title>Insureum</title>
   <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
-  <link href='./build/stylesheets/success.css' rel='stylesheet' type='text/css'>
+  <link href='./build/stylesheets/app.css' rel='stylesheet' type='text/css'>
   <script src="./app.js"></script>
 
 </head>
 
 <body>
     <div class="container">
-      <div class="header"><img class="checkmark" src="./build/img/checkmark.svg">  Success!</div>
-      <div class="sub-header">Premium transaction completed successfully</div>
+      <a href="/"><div class="header"><img class="checkmark" src="./build/img/checkmark.svg">  Success!</div></a>
+      <div class="sub-header">You're insured for August.</div>
+      <br /><br />
       <div class="sub-header">Contract balance: <span id="balanceOfContract"></span> ETH</div>
+      <br />
+      <div class="sub-header">Premiums paid this year: <span id="balanceOfUser"></span> ETH</div>
     </div>
     
 </body>

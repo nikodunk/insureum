@@ -43,9 +43,20 @@ window.App = {
     });
   },
 
-  setStatus: function(message) {
-    var status = document.getElementById("status");
-    status.innerHTML = message;
+  payIn: function(value) {
+    var self = this;
+    var meta;
+    localStorage.setItem('type', `${value}`);
+    MetaCoin.deployed().then(function(instance) {
+      meta = instance;
+      return meta.PayInPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+    }).then(function() {
+      self.getBalanceOfContract()
+      location.href = '/user.html';
+    }).catch(function(e) {
+      console.log(e);
+      
+    });
   },
 
   getBalanceOfContract: function() {
@@ -60,7 +71,7 @@ window.App = {
       balance_element.innerHTML = value.valueOf() / 1000000000000000000;
     }).catch(function(e) {
       console.log(e);
-      self.setStatus("Error getting balance; see log.");
+      
     });
   },
 
@@ -73,28 +84,16 @@ window.App = {
       return meta.getBalanceOfUser.call()
     }).then(function(value) {
       var balance_element = document.getElementById("balanceOfUser");
+      console.log(value.valueOf() / 1000000000000000000)
       balance_element.innerHTML = value.valueOf() / 1000000000000000000;
+
     }).catch(function(e) {
       console.log(e);
-      self.setStatus("Error getting balance; see log.");
+      
     });
   },
 
-  payIn: function(value) {
-    var self = this;
-    var meta;
-    localStorage.setItem('type', `${value}`);
-    MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.planOneTwoThree({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
-    }).then(function() {
-      self.getBalanceOfContract()
-      location.href = '/user.html';
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error getting balance; see log.");
-    });
-  },
+  
 
   payOut: function(amount) {
     var self = this;
@@ -102,12 +101,13 @@ window.App = {
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.claim(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
+      var amt = document.getElementById("input");
+      return meta.claim(web3.fromWei(amount, 'ether'), {from: web3.eth.accounts[0] })
     }).then(function() {
       self.getBalanceOfContract()
     }).catch(function(e) {
       console.log(e);
-      self.setStatus("Error paying out balance; see log.");
+      
     });
 
   },
