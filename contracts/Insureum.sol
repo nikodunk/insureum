@@ -15,6 +15,7 @@ contract Insureum {
     }
 
     function payoutToHospital(uint amount) public {
+        // hospital require
         msg.sender.transfer(amount);
     }
 
