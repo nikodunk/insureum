@@ -2,20 +2,27 @@
 <html>
 <head>
   <title>Insureum</title>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-  <script src="./app.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
+  <link href='./stylesheets/premiums.css' rel='stylesheet' type='text/css'>
+  <script src="javascripts/app.js"></script>
 </head>
 
 <body>
-  <h1>Insureum</h1>
+  <p class="header">Insureum<br> Plans</p>
 
-  <h3>Premium Plan 1<span class="black"></h3>
-  <button id="send" onclick="App.payIn(.1)">Premium Cost: 1 Eth</button>
+  <div class="plan">
+    <div class="plan-header">Premium Plan 1</div>
+    <button id="send" onclick="App.payIn(.1)">Premium Cost: 0.1 ETH</button>
+  </div>
 
-  <h3>Premium Plan 2<span class="black"></h3>
-  <button id="send" onclick="App.payIn(.2)">Premium Cost: 2 Eth</button>
+  <div class="plan">
+    <div class="plan-header">Premium Plan 2</div>
+    <button id="send" onclick="App.payIn(.2)">Premium Cost: 0.2 ETH</button>
+  </div>
 
-  <h3>Premium Plan 3<span class="black"></h3>
-  <button id="send" onclick="App.payIn(.3)">Premium Cost: 3 Eth</button>
+  <div class="plan">
+    <div class="plan-header">Premium Plan 3</div>
+    <button id="send" onclick="App.payIn(.3)">Premium Cost: 0.3 ETH</button>
+  </div>
 </body>
 </html>

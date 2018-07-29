@@ -67,7 +67,7 @@ window.App = {
   payIn: function(value) {
     var self = this;
     var meta;
-
+    localStorage.setItem('type', `${value}`);
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
       return meta.planOneTwoThree({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
