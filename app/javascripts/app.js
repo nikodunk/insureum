@@ -81,7 +81,10 @@ window.App = {
   },
 
   payOut: function() {
-    return
+    var self = this;
+    var meta;
+
+    //return meta.payoutToSeller({from: web3.eth.accounts[0]})
 
   },
 

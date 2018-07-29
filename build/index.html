@@ -7,22 +7,22 @@
 </head>
 <body>
   <h1>Insureum</h1>
-  <h3>Your account is <span class="black"><span id="balance"></span></span></h3>
+  <h3>Insureum contract has <span class="black"><span id="balance"></span></span></h3>
   <button id="send" onclick="App.getBalance()">Get Balance</button>
 
   <h3>Payment Plan 1<span class="black"><span id="balance"></span></span></h3>
-  <button id="send" onclick="App.getBalance()">Pay In 1 Eth</button>
+  <button id="send" onclick="App.payIn(1)">Pay In 1 Eth</button>
 
   <h3>Payment Plan 2<span class="black"><span id="balance"></span></span></h3>
-  <button id="send" onclick="App.getBalance()">Pay In 2 Eth</button>
+  <button id="send" onclick="App.payIn(2)">Pay In 2 Eth</button>
 
   <h3>Payment Plan 3<span class="black"><span id="balance"></span></span></h3>
-  <button id="send" onclick="App.getBalance()">Pay In 3 Eth</button>
+  <button id="send" onclick="App.payIn(3)">Pay In 3 Eth</button>
 
   <hr>
 
   <h3>Hospital<span class="black"><span id="balance"></span></span></h3>
-  <button id="send" onclick="App.getBalance()">Pay In</button>
+  <button id="send" onclick="App.payOut()">Get Payment</button>
 
 </body>
 </html>
