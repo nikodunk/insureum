@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 93);
+/******/ 	return __webpack_require__(__webpack_require__.s = 92);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2386,7 +2386,7 @@ module.exports = {
  */
 
 
-var BigNumber = __webpack_require__(49);
+var BigNumber = __webpack_require__(45);
 var sha3 = __webpack_require__(32);
 var utf8 = __webpack_require__(61);
 
@@ -3638,8 +3638,8 @@ module.exports = g;
 
 
 
-var base64 = __webpack_require__(94)
-var ieee754 = __webpack_require__(124)
+var base64 = __webpack_require__(93)
+var ieee754 = __webpack_require__(123)
 var isArray = __webpack_require__(68)
 
 exports.Buffer = Buffer
@@ -5704,9 +5704,9 @@ module.exports = {
  * @date 2015
  */
 
-var BigNumber = __webpack_require__(49);
+var BigNumber = __webpack_require__(45);
 var utils = __webpack_require__(3);
-var c = __webpack_require__(45);
+var c = __webpack_require__(46);
 var SolidityParam = __webpack_require__(83);
 
 
@@ -7041,8 +7041,8 @@ module.exports = SolidityType;
  */
 
 var utils = __webpack_require__(3);
-var config = __webpack_require__(45);
-var Iban = __webpack_require__(47);
+var config = __webpack_require__(46);
+var Iban = __webpack_require__(48);
 
 /**
  * Should the format output to a big number
@@ -16968,680 +16968,6 @@ module.exports = {
 /* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file config.js
- * @authors:
- *   Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-/**
- * Utils
- * 
- * @module utils
- */
-
-/**
- * Utility functions
- * 
- * @class [utils] config
- * @constructor
- */
-
-
-/// required to define ETH_BIGNUMBER_ROUNDING_MODE
-var BigNumber = __webpack_require__(49);
-
-var ETH_UNITS = [
-    'wei',
-    'kwei',
-    'Mwei',
-    'Gwei',
-    'szabo',
-    'finney',
-    'femtoether',
-    'picoether',
-    'nanoether',
-    'microether',
-    'milliether',
-    'nano',
-    'micro',
-    'milli',
-    'ether',
-    'grand',
-    'Mether',
-    'Gether',
-    'Tether',
-    'Pether',
-    'Eether',
-    'Zether',
-    'Yether',
-    'Nether',
-    'Dether',
-    'Vether',
-    'Uether'
-];
-
-module.exports = {
-    ETH_PADDING: 32,
-    ETH_SIGNATURE_LENGTH: 4,
-    ETH_UNITS: ETH_UNITS,
-    ETH_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
-    ETH_POLLING_TIMEOUT: 1000/2,
-    defaultBlock: 'latest',
-    defaultAccount: undefined
-};
-
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file filter.js
- * @authors:
- *   Jeffrey Wilcke <jeff@ethdev.com>
- *   Marek Kotewicz <marek@ethdev.com>
- *   Marian Oancea <marian@ethdev.com>
- *   Fabian Vogelsteller <fabian@ethdev.com>
- *   Gav Wood <g@ethdev.com>
- * @date 2014
- */
-
-var formatters = __webpack_require__(13);
-var utils = __webpack_require__(3);
-
-/**
-* Converts a given topic to a hex string, but also allows null values.
-*
-* @param {Mixed} value
-* @return {String}
-*/
-var toTopic = function(value){
-
-    if(value === null || typeof value === 'undefined')
-        return null;
-
-    value = String(value);
-
-    if(value.indexOf('0x') === 0)
-        return value;
-    else
-        return utils.fromUtf8(value);
-};
-
-/// This method should be called on options object, to verify deprecated properties && lazy load dynamic ones
-/// @param should be string or object
-/// @returns options string or object
-var getOptions = function (options) {
-
-    if (utils.isString(options)) {
-        return options;
-    }
-
-    options = options || {};
-
-    // make sure topics, get converted to hex
-    options.topics = options.topics || [];
-    options.topics = options.topics.map(function(topic){
-        return (utils.isArray(topic)) ? topic.map(toTopic) : toTopic(topic);
-    });
-
-    return {
-        topics: options.topics,
-        from: options.from,
-        to: options.to,
-        address: options.address,
-        fromBlock: formatters.inputBlockNumberFormatter(options.fromBlock),
-        toBlock: formatters.inputBlockNumberFormatter(options.toBlock)
-    };
-};
-
-/**
-Adds the callback and sets up the methods, to iterate over the results.
-
-@method getLogsAtStart
-@param {Object} self
-@param {funciton}
-*/
-var getLogsAtStart = function(self, callback){
-    // call getFilterLogs for the first watch callback start
-    if (!utils.isString(self.options)) {
-        self.get(function (err, messages) {
-            // don't send all the responses to all the watches again... just to self one
-            if (err) {
-                callback(err);
-            }
-
-            if(utils.isArray(messages)) {
-                messages.forEach(function (message) {
-                    callback(null, message);
-                });
-            }
-        });
-    }
-};
-
-/**
-Adds the callback and sets up the methods, to iterate over the results.
-
-@method pollFilter
-@param {Object} self
-*/
-var pollFilter = function(self) {
-
-    var onMessage = function (error, messages) {
-        if (error) {
-            return self.callbacks.forEach(function (callback) {
-                callback(error);
-            });
-        }
-
-        if(utils.isArray(messages)) {
-            messages.forEach(function (message) {
-                message = self.formatter ? self.formatter(message) : message;
-                self.callbacks.forEach(function (callback) {
-                    callback(null, message);
-                });
-            });
-        }
-    };
-
-    self.requestManager.startPolling({
-        method: self.implementation.poll.call,
-        params: [self.filterId],
-    }, self.filterId, onMessage, self.stopWatching.bind(self));
-
-};
-
-var Filter = function (requestManager, options, methods, formatter, callback) {
-    var self = this;
-    var implementation = {};
-    methods.forEach(function (method) {
-        method.setRequestManager(requestManager);
-        method.attachToObject(implementation);
-    });
-    this.requestManager = requestManager;
-    this.options = getOptions(options);
-    this.implementation = implementation;
-    this.filterId = null;
-    this.callbacks = [];
-    this.getLogsCallbacks = [];
-    this.pollFilters = [];
-    this.formatter = formatter;
-    this.implementation.newFilter(this.options, function(error, id){
-        if(error) {
-            self.callbacks.forEach(function(cb){
-                cb(error);
-            });
-        } else {
-            self.filterId = id;
-
-            // check if there are get pending callbacks as a consequence
-            // of calling get() with filterId unassigned.
-            self.getLogsCallbacks.forEach(function (cb){
-                self.get(cb);
-            });
-            self.getLogsCallbacks = [];
-
-            // get filter logs for the already existing watch calls
-            self.callbacks.forEach(function(cb){
-                getLogsAtStart(self, cb);
-            });
-            if(self.callbacks.length > 0)
-                pollFilter(self);
-
-            // start to watch immediately
-            if(typeof callback === 'function') {
-                return self.watch(callback);
-            }
-        }
-    });
-
-    return this;
-};
-
-Filter.prototype.watch = function (callback) {
-    this.callbacks.push(callback);
-
-    if(this.filterId) {
-        getLogsAtStart(this, callback);
-        pollFilter(this);
-    }
-
-    return this;
-};
-
-Filter.prototype.stopWatching = function () {
-    this.requestManager.stopPolling(this.filterId);
-    // remove filter async
-    this.implementation.uninstallFilter(this.filterId, function(){});
-    this.callbacks = [];
-};
-
-Filter.prototype.get = function (callback) {
-    var self = this;
-    if (utils.isFunction(callback)) {
-        if (this.filterId === null) {
-            // If filterId is not set yet, call it back
-            // when newFilter() assigns it.
-            this.getLogsCallbacks.push(callback);
-        } else {
-            this.implementation.getLogs(this.filterId, function(err, res){
-                if (err) {
-                    callback(err);
-                } else {
-                    callback(null, res.map(function (log) {
-                        return self.formatter ? self.formatter(log) : log;
-                    }));
-                }
-            });
-        }
-    } else {
-        if (this.filterId === null) {
-            throw new Error('Filter ID Error: filter().get() can\'t be chained synchronous, please provide a callback for the get() method.');
-        }
-        var logs = this.implementation.getLogs(this.filterId);
-        return logs.map(function (log) {
-            return self.formatter ? self.formatter(log) : log;
-        });
-    }
-
-    return this;
-};
-
-module.exports = Filter;
-
-
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** 
- * @file iban.js
- * @author Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-var BigNumber = __webpack_require__(49);
-
-var padLeft = function (string, bytes) {
-    var result = string;
-    while (result.length < bytes * 2) {
-        result = '00' + result;
-    }
-    return result;
-};
-
-/**
- * Prepare an IBAN for mod 97 computation by moving the first 4 chars to the end and transforming the letters to
- * numbers (A = 10, B = 11, ..., Z = 35), as specified in ISO13616.
- *
- * @method iso13616Prepare
- * @param {String} iban the IBAN
- * @returns {String} the prepared IBAN
- */
-var iso13616Prepare = function (iban) {
-    var A = 'A'.charCodeAt(0);
-    var Z = 'Z'.charCodeAt(0);
-
-    iban = iban.toUpperCase();
-    iban = iban.substr(4) + iban.substr(0,4);
-
-    return iban.split('').map(function(n){
-        var code = n.charCodeAt(0);
-        if (code >= A && code <= Z){
-            // A = 10, B = 11, ... Z = 35
-            return code - A + 10;
-        } else {
-            return n;
-        }
-    }).join('');
-};
-
-/**
- * Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
- *
- * @method mod9710
- * @param {String} iban
- * @returns {Number}
- */
-var mod9710 = function (iban) {
-    var remainder = iban,
-        block;
-
-    while (remainder.length > 2){
-        block = remainder.slice(0, 9);
-        remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
-    }
-
-    return parseInt(remainder, 10) % 97;
-};
-
-/**
- * This prototype should be used to create iban object from iban correct string
- *
- * @param {String} iban
- */
-var Iban = function (iban) {
-    this._iban = iban;
-};
-
-/**
- * This method should be used to create iban object from ethereum address
- *
- * @method fromAddress
- * @param {String} address
- * @return {Iban} the IBAN object
- */
-Iban.fromAddress = function (address) {
-    var asBn = new BigNumber(address, 16);
-    var base36 = asBn.toString(36);
-    var padded = padLeft(base36, 15);
-    return Iban.fromBban(padded.toUpperCase());
-};
-
-/**
- * Convert the passed BBAN to an IBAN for this country specification.
- * Please note that <i>"generation of the IBAN shall be the exclusive responsibility of the bank/branch servicing the account"</i>.
- * This method implements the preferred algorithm described in http://en.wikipedia.org/wiki/International_Bank_Account_Number#Generating_IBAN_check_digits
- *
- * @method fromBban
- * @param {String} bban the BBAN to convert to IBAN
- * @returns {Iban} the IBAN object
- */
-Iban.fromBban = function (bban) {
-    var countryCode = 'XE';
-
-    var remainder = mod9710(iso13616Prepare(countryCode + '00' + bban));
-    var checkDigit = ('0' + (98 - remainder)).slice(-2);
-
-    return new Iban(countryCode + checkDigit + bban);
-};
-
-/**
- * Should be used to create IBAN object for given institution and identifier
- *
- * @method createIndirect
- * @param {Object} options, required options are "institution" and "identifier"
- * @return {Iban} the IBAN object
- */
-Iban.createIndirect = function (options) {
-    return Iban.fromBban('ETH' + options.institution + options.identifier);
-};
-
-/**
- * Thos method should be used to check if given string is valid iban object
- *
- * @method isValid
- * @param {String} iban string
- * @return {Boolean} true if it is valid IBAN
- */
-Iban.isValid = function (iban) {
-    var i = new Iban(iban);
-    return i.isValid();
-};
-
-/**
- * Should be called to check if iban is correct
- *
- * @method isValid
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isValid = function () {
-    return /^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
-        mod9710(iso13616Prepare(this._iban)) === 1;
-};
-
-/**
- * Should be called to check if iban number is direct
- *
- * @method isDirect
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isDirect = function () {
-    return this._iban.length === 34 || this._iban.length === 35;
-};
-
-/**
- * Should be called to check if iban number if indirect
- *
- * @method isIndirect
- * @returns {Boolean} true if it is, otherwise false
- */
-Iban.prototype.isIndirect = function () {
-    return this._iban.length === 20;
-};
-
-/**
- * Should be called to get iban checksum
- * Uses the mod-97-10 checksumming protocol (ISO/IEC 7064:2003)
- *
- * @method checksum
- * @returns {String} checksum
- */
-Iban.prototype.checksum = function () {
-    return this._iban.substr(2, 2);
-};
-
-/**
- * Should be called to get institution identifier
- * eg. XREG
- *
- * @method institution
- * @returns {String} institution identifier
- */
-Iban.prototype.institution = function () {
-    return this.isIndirect() ? this._iban.substr(7, 4) : '';
-};
-
-/**
- * Should be called to get client identifier within institution
- * eg. GAVOFYORK
- *
- * @method client
- * @returns {String} client identifier
- */
-Iban.prototype.client = function () {
-    return this.isIndirect() ? this._iban.substr(11) : '';
-};
-
-/**
- * Should be called to get client direct address
- *
- * @method address
- * @returns {String} client direct address
- */
-Iban.prototype.address = function () {
-    if (this.isDirect()) {
-        var base36 = this._iban.substr(4);
-        var asBn = new BigNumber(base36, 36);
-        return padLeft(asBn.toString(16), 20);
-    } 
-
-    return '';
-};
-
-Iban.prototype.toString = function () {
-    return this._iban;
-};
-
-module.exports = Iban;
-
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-    This file is part of web3.js.
-
-    web3.js is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    web3.js is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/** @file watches.js
- * @authors:
- *   Marek Kotewicz <marek@ethdev.com>
- * @date 2015
- */
-
-var Method = __webpack_require__(25);
-
-/// @returns an array of objects describing web3.eth.filter api methods
-var eth = function () {
-    var newFilterCall = function (args) {
-        var type = args[0];
-
-        switch(type) {
-            case 'latest':
-                args.shift();
-                this.params = 0;
-                return 'eth_newBlockFilter';
-            case 'pending':
-                args.shift();
-                this.params = 0;
-                return 'eth_newPendingTransactionFilter';
-            default:
-                return 'eth_newFilter';
-        }
-    };
-
-    var newFilter = new Method({
-        name: 'newFilter',
-        call: newFilterCall,
-        params: 1
-    });
-
-    var uninstallFilter = new Method({
-        name: 'uninstallFilter',
-        call: 'eth_uninstallFilter',
-        params: 1
-    });
-
-    var getLogs = new Method({
-        name: 'getLogs',
-        call: 'eth_getFilterLogs',
-        params: 1
-    });
-
-    var poll = new Method({
-        name: 'poll',
-        call: 'eth_getFilterChanges',
-        params: 1
-    });
-
-    return [
-        newFilter,
-        uninstallFilter,
-        getLogs,
-        poll
-    ];
-};
-
-/// @returns an array of objects describing web3.shh.watch api methods
-var shh = function () {
-    var newFilter = new Method({
-        name: 'newFilter',
-        call: 'shh_newFilter',
-        params: 1
-    });
-
-    var uninstallFilter = new Method({
-        name: 'uninstallFilter',
-        call: 'shh_uninstallFilter',
-        params: 1
-    });
-
-    var getLogs = new Method({
-        name: 'getLogs',
-        call: 'shh_getMessages',
-        params: 1
-    });
-
-    var poll = new Method({
-        name: 'poll',
-        call: 'shh_getFilterChanges',
-        params: 1
-    });
-
-    return [
-        newFilter,
-        uninstallFilter,
-        getLogs,
-        poll
-    ];
-};
-
-module.exports = {
-    eth: eth,
-    shh: shh
-};
-
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v2.0.7 https://github.com/MikeMcl/bignumber.js/LICENCE */
 
 ;(function (global) {
@@ -20330,6 +19656,680 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! bignumber.js v2.0.7 https://github.com/Mik
 
 
 /***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file config.js
+ * @authors:
+ *   Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+/**
+ * Utils
+ * 
+ * @module utils
+ */
+
+/**
+ * Utility functions
+ * 
+ * @class [utils] config
+ * @constructor
+ */
+
+
+/// required to define ETH_BIGNUMBER_ROUNDING_MODE
+var BigNumber = __webpack_require__(45);
+
+var ETH_UNITS = [
+    'wei',
+    'kwei',
+    'Mwei',
+    'Gwei',
+    'szabo',
+    'finney',
+    'femtoether',
+    'picoether',
+    'nanoether',
+    'microether',
+    'milliether',
+    'nano',
+    'micro',
+    'milli',
+    'ether',
+    'grand',
+    'Mether',
+    'Gether',
+    'Tether',
+    'Pether',
+    'Eether',
+    'Zether',
+    'Yether',
+    'Nether',
+    'Dether',
+    'Vether',
+    'Uether'
+];
+
+module.exports = {
+    ETH_PADDING: 32,
+    ETH_SIGNATURE_LENGTH: 4,
+    ETH_UNITS: ETH_UNITS,
+    ETH_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
+    ETH_POLLING_TIMEOUT: 1000/2,
+    defaultBlock: 'latest',
+    defaultAccount: undefined
+};
+
+
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file filter.js
+ * @authors:
+ *   Jeffrey Wilcke <jeff@ethdev.com>
+ *   Marek Kotewicz <marek@ethdev.com>
+ *   Marian Oancea <marian@ethdev.com>
+ *   Fabian Vogelsteller <fabian@ethdev.com>
+ *   Gav Wood <g@ethdev.com>
+ * @date 2014
+ */
+
+var formatters = __webpack_require__(13);
+var utils = __webpack_require__(3);
+
+/**
+* Converts a given topic to a hex string, but also allows null values.
+*
+* @param {Mixed} value
+* @return {String}
+*/
+var toTopic = function(value){
+
+    if(value === null || typeof value === 'undefined')
+        return null;
+
+    value = String(value);
+
+    if(value.indexOf('0x') === 0)
+        return value;
+    else
+        return utils.fromUtf8(value);
+};
+
+/// This method should be called on options object, to verify deprecated properties && lazy load dynamic ones
+/// @param should be string or object
+/// @returns options string or object
+var getOptions = function (options) {
+
+    if (utils.isString(options)) {
+        return options;
+    }
+
+    options = options || {};
+
+    // make sure topics, get converted to hex
+    options.topics = options.topics || [];
+    options.topics = options.topics.map(function(topic){
+        return (utils.isArray(topic)) ? topic.map(toTopic) : toTopic(topic);
+    });
+
+    return {
+        topics: options.topics,
+        from: options.from,
+        to: options.to,
+        address: options.address,
+        fromBlock: formatters.inputBlockNumberFormatter(options.fromBlock),
+        toBlock: formatters.inputBlockNumberFormatter(options.toBlock)
+    };
+};
+
+/**
+Adds the callback and sets up the methods, to iterate over the results.
+
+@method getLogsAtStart
+@param {Object} self
+@param {funciton}
+*/
+var getLogsAtStart = function(self, callback){
+    // call getFilterLogs for the first watch callback start
+    if (!utils.isString(self.options)) {
+        self.get(function (err, messages) {
+            // don't send all the responses to all the watches again... just to self one
+            if (err) {
+                callback(err);
+            }
+
+            if(utils.isArray(messages)) {
+                messages.forEach(function (message) {
+                    callback(null, message);
+                });
+            }
+        });
+    }
+};
+
+/**
+Adds the callback and sets up the methods, to iterate over the results.
+
+@method pollFilter
+@param {Object} self
+*/
+var pollFilter = function(self) {
+
+    var onMessage = function (error, messages) {
+        if (error) {
+            return self.callbacks.forEach(function (callback) {
+                callback(error);
+            });
+        }
+
+        if(utils.isArray(messages)) {
+            messages.forEach(function (message) {
+                message = self.formatter ? self.formatter(message) : message;
+                self.callbacks.forEach(function (callback) {
+                    callback(null, message);
+                });
+            });
+        }
+    };
+
+    self.requestManager.startPolling({
+        method: self.implementation.poll.call,
+        params: [self.filterId],
+    }, self.filterId, onMessage, self.stopWatching.bind(self));
+
+};
+
+var Filter = function (requestManager, options, methods, formatter, callback) {
+    var self = this;
+    var implementation = {};
+    methods.forEach(function (method) {
+        method.setRequestManager(requestManager);
+        method.attachToObject(implementation);
+    });
+    this.requestManager = requestManager;
+    this.options = getOptions(options);
+    this.implementation = implementation;
+    this.filterId = null;
+    this.callbacks = [];
+    this.getLogsCallbacks = [];
+    this.pollFilters = [];
+    this.formatter = formatter;
+    this.implementation.newFilter(this.options, function(error, id){
+        if(error) {
+            self.callbacks.forEach(function(cb){
+                cb(error);
+            });
+        } else {
+            self.filterId = id;
+
+            // check if there are get pending callbacks as a consequence
+            // of calling get() with filterId unassigned.
+            self.getLogsCallbacks.forEach(function (cb){
+                self.get(cb);
+            });
+            self.getLogsCallbacks = [];
+
+            // get filter logs for the already existing watch calls
+            self.callbacks.forEach(function(cb){
+                getLogsAtStart(self, cb);
+            });
+            if(self.callbacks.length > 0)
+                pollFilter(self);
+
+            // start to watch immediately
+            if(typeof callback === 'function') {
+                return self.watch(callback);
+            }
+        }
+    });
+
+    return this;
+};
+
+Filter.prototype.watch = function (callback) {
+    this.callbacks.push(callback);
+
+    if(this.filterId) {
+        getLogsAtStart(this, callback);
+        pollFilter(this);
+    }
+
+    return this;
+};
+
+Filter.prototype.stopWatching = function () {
+    this.requestManager.stopPolling(this.filterId);
+    // remove filter async
+    this.implementation.uninstallFilter(this.filterId, function(){});
+    this.callbacks = [];
+};
+
+Filter.prototype.get = function (callback) {
+    var self = this;
+    if (utils.isFunction(callback)) {
+        if (this.filterId === null) {
+            // If filterId is not set yet, call it back
+            // when newFilter() assigns it.
+            this.getLogsCallbacks.push(callback);
+        } else {
+            this.implementation.getLogs(this.filterId, function(err, res){
+                if (err) {
+                    callback(err);
+                } else {
+                    callback(null, res.map(function (log) {
+                        return self.formatter ? self.formatter(log) : log;
+                    }));
+                }
+            });
+        }
+    } else {
+        if (this.filterId === null) {
+            throw new Error('Filter ID Error: filter().get() can\'t be chained synchronous, please provide a callback for the get() method.');
+        }
+        var logs = this.implementation.getLogs(this.filterId);
+        return logs.map(function (log) {
+            return self.formatter ? self.formatter(log) : log;
+        });
+    }
+
+    return this;
+};
+
+module.exports = Filter;
+
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** 
+ * @file iban.js
+ * @author Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+var BigNumber = __webpack_require__(45);
+
+var padLeft = function (string, bytes) {
+    var result = string;
+    while (result.length < bytes * 2) {
+        result = '00' + result;
+    }
+    return result;
+};
+
+/**
+ * Prepare an IBAN for mod 97 computation by moving the first 4 chars to the end and transforming the letters to
+ * numbers (A = 10, B = 11, ..., Z = 35), as specified in ISO13616.
+ *
+ * @method iso13616Prepare
+ * @param {String} iban the IBAN
+ * @returns {String} the prepared IBAN
+ */
+var iso13616Prepare = function (iban) {
+    var A = 'A'.charCodeAt(0);
+    var Z = 'Z'.charCodeAt(0);
+
+    iban = iban.toUpperCase();
+    iban = iban.substr(4) + iban.substr(0,4);
+
+    return iban.split('').map(function(n){
+        var code = n.charCodeAt(0);
+        if (code >= A && code <= Z){
+            // A = 10, B = 11, ... Z = 35
+            return code - A + 10;
+        } else {
+            return n;
+        }
+    }).join('');
+};
+
+/**
+ * Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
+ *
+ * @method mod9710
+ * @param {String} iban
+ * @returns {Number}
+ */
+var mod9710 = function (iban) {
+    var remainder = iban,
+        block;
+
+    while (remainder.length > 2){
+        block = remainder.slice(0, 9);
+        remainder = parseInt(block, 10) % 97 + remainder.slice(block.length);
+    }
+
+    return parseInt(remainder, 10) % 97;
+};
+
+/**
+ * This prototype should be used to create iban object from iban correct string
+ *
+ * @param {String} iban
+ */
+var Iban = function (iban) {
+    this._iban = iban;
+};
+
+/**
+ * This method should be used to create iban object from ethereum address
+ *
+ * @method fromAddress
+ * @param {String} address
+ * @return {Iban} the IBAN object
+ */
+Iban.fromAddress = function (address) {
+    var asBn = new BigNumber(address, 16);
+    var base36 = asBn.toString(36);
+    var padded = padLeft(base36, 15);
+    return Iban.fromBban(padded.toUpperCase());
+};
+
+/**
+ * Convert the passed BBAN to an IBAN for this country specification.
+ * Please note that <i>"generation of the IBAN shall be the exclusive responsibility of the bank/branch servicing the account"</i>.
+ * This method implements the preferred algorithm described in http://en.wikipedia.org/wiki/International_Bank_Account_Number#Generating_IBAN_check_digits
+ *
+ * @method fromBban
+ * @param {String} bban the BBAN to convert to IBAN
+ * @returns {Iban} the IBAN object
+ */
+Iban.fromBban = function (bban) {
+    var countryCode = 'XE';
+
+    var remainder = mod9710(iso13616Prepare(countryCode + '00' + bban));
+    var checkDigit = ('0' + (98 - remainder)).slice(-2);
+
+    return new Iban(countryCode + checkDigit + bban);
+};
+
+/**
+ * Should be used to create IBAN object for given institution and identifier
+ *
+ * @method createIndirect
+ * @param {Object} options, required options are "institution" and "identifier"
+ * @return {Iban} the IBAN object
+ */
+Iban.createIndirect = function (options) {
+    return Iban.fromBban('ETH' + options.institution + options.identifier);
+};
+
+/**
+ * Thos method should be used to check if given string is valid iban object
+ *
+ * @method isValid
+ * @param {String} iban string
+ * @return {Boolean} true if it is valid IBAN
+ */
+Iban.isValid = function (iban) {
+    var i = new Iban(iban);
+    return i.isValid();
+};
+
+/**
+ * Should be called to check if iban is correct
+ *
+ * @method isValid
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isValid = function () {
+    return /^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
+        mod9710(iso13616Prepare(this._iban)) === 1;
+};
+
+/**
+ * Should be called to check if iban number is direct
+ *
+ * @method isDirect
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isDirect = function () {
+    return this._iban.length === 34 || this._iban.length === 35;
+};
+
+/**
+ * Should be called to check if iban number if indirect
+ *
+ * @method isIndirect
+ * @returns {Boolean} true if it is, otherwise false
+ */
+Iban.prototype.isIndirect = function () {
+    return this._iban.length === 20;
+};
+
+/**
+ * Should be called to get iban checksum
+ * Uses the mod-97-10 checksumming protocol (ISO/IEC 7064:2003)
+ *
+ * @method checksum
+ * @returns {String} checksum
+ */
+Iban.prototype.checksum = function () {
+    return this._iban.substr(2, 2);
+};
+
+/**
+ * Should be called to get institution identifier
+ * eg. XREG
+ *
+ * @method institution
+ * @returns {String} institution identifier
+ */
+Iban.prototype.institution = function () {
+    return this.isIndirect() ? this._iban.substr(7, 4) : '';
+};
+
+/**
+ * Should be called to get client identifier within institution
+ * eg. GAVOFYORK
+ *
+ * @method client
+ * @returns {String} client identifier
+ */
+Iban.prototype.client = function () {
+    return this.isIndirect() ? this._iban.substr(11) : '';
+};
+
+/**
+ * Should be called to get client direct address
+ *
+ * @method address
+ * @returns {String} client direct address
+ */
+Iban.prototype.address = function () {
+    if (this.isDirect()) {
+        var base36 = this._iban.substr(4);
+        var asBn = new BigNumber(base36, 36);
+        return padLeft(asBn.toString(16), 20);
+    } 
+
+    return '';
+};
+
+Iban.prototype.toString = function () {
+    return this._iban;
+};
+
+module.exports = Iban;
+
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file watches.js
+ * @authors:
+ *   Marek Kotewicz <marek@ethdev.com>
+ * @date 2015
+ */
+
+var Method = __webpack_require__(25);
+
+/// @returns an array of objects describing web3.eth.filter api methods
+var eth = function () {
+    var newFilterCall = function (args) {
+        var type = args[0];
+
+        switch(type) {
+            case 'latest':
+                args.shift();
+                this.params = 0;
+                return 'eth_newBlockFilter';
+            case 'pending':
+                args.shift();
+                this.params = 0;
+                return 'eth_newPendingTransactionFilter';
+            default:
+                return 'eth_newFilter';
+        }
+    };
+
+    var newFilter = new Method({
+        name: 'newFilter',
+        call: newFilterCall,
+        params: 1
+    });
+
+    var uninstallFilter = new Method({
+        name: 'uninstallFilter',
+        call: 'eth_uninstallFilter',
+        params: 1
+    });
+
+    var getLogs = new Method({
+        name: 'getLogs',
+        call: 'eth_getFilterLogs',
+        params: 1
+    });
+
+    var poll = new Method({
+        name: 'poll',
+        call: 'eth_getFilterChanges',
+        params: 1
+    });
+
+    return [
+        newFilter,
+        uninstallFilter,
+        getLogs,
+        poll
+    ];
+};
+
+/// @returns an array of objects describing web3.shh.watch api methods
+var shh = function () {
+    var newFilter = new Method({
+        name: 'newFilter',
+        call: 'shh_newFilter',
+        params: 1
+    });
+
+    var uninstallFilter = new Method({
+        name: 'uninstallFilter',
+        call: 'shh_uninstallFilter',
+        params: 1
+    });
+
+    var getLogs = new Method({
+        name: 'getLogs',
+        call: 'shh_getMessages',
+        params: 1
+    });
+
+    var poll = new Method({
+        name: 'poll',
+        call: 'shh_getFilterChanges',
+        params: 1
+    });
+
+    return [
+        newFilter,
+        uninstallFilter,
+        getLogs,
+        poll
+    ];
+};
+
+module.exports = {
+    eth: eth,
+    shh: shh
+};
+
+
+
+/***/ }),
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -21194,7 +21194,7 @@ module.exports = function(module) {
 ;(function (root, factory, undef) {
 	if (true) {
 		// CommonJS
-		module.exports = exports = factory(__webpack_require__(0), __webpack_require__(38), __webpack_require__(100), __webpack_require__(98), __webpack_require__(20), __webpack_require__(22), __webpack_require__(57), __webpack_require__(65), __webpack_require__(116), __webpack_require__(66), __webpack_require__(117), __webpack_require__(37), __webpack_require__(115), __webpack_require__(55), __webpack_require__(111), __webpack_require__(21), __webpack_require__(1), __webpack_require__(101), __webpack_require__(103), __webpack_require__(102), __webpack_require__(105), __webpack_require__(104), __webpack_require__(106), __webpack_require__(107), __webpack_require__(108), __webpack_require__(110), __webpack_require__(109), __webpack_require__(99), __webpack_require__(97), __webpack_require__(118), __webpack_require__(114), __webpack_require__(113), __webpack_require__(112));
+		module.exports = exports = factory(__webpack_require__(0), __webpack_require__(38), __webpack_require__(99), __webpack_require__(97), __webpack_require__(20), __webpack_require__(22), __webpack_require__(57), __webpack_require__(65), __webpack_require__(115), __webpack_require__(66), __webpack_require__(116), __webpack_require__(37), __webpack_require__(114), __webpack_require__(55), __webpack_require__(110), __webpack_require__(21), __webpack_require__(1), __webpack_require__(100), __webpack_require__(102), __webpack_require__(101), __webpack_require__(104), __webpack_require__(103), __webpack_require__(105), __webpack_require__(106), __webpack_require__(107), __webpack_require__(109), __webpack_require__(108), __webpack_require__(98), __webpack_require__(96), __webpack_require__(117), __webpack_require__(113), __webpack_require__(112), __webpack_require__(111));
 	}
 	else if (typeof define === "function" && define.amd) {
 		// AMD
@@ -21393,15 +21393,15 @@ module.exports = function(module) {
 
 var f = __webpack_require__(7);
 
-var SolidityTypeAddress = __webpack_require__(146);
-var SolidityTypeBool = __webpack_require__(147);
-var SolidityTypeInt = __webpack_require__(150);
-var SolidityTypeUInt = __webpack_require__(153);
-var SolidityTypeDynamicBytes = __webpack_require__(149);
-var SolidityTypeString = __webpack_require__(152);
-var SolidityTypeReal = __webpack_require__(151);
-var SolidityTypeUReal = __webpack_require__(154);
-var SolidityTypeBytes = __webpack_require__(148);
+var SolidityTypeAddress = __webpack_require__(145);
+var SolidityTypeBool = __webpack_require__(146);
+var SolidityTypeInt = __webpack_require__(149);
+var SolidityTypeUInt = __webpack_require__(152);
+var SolidityTypeDynamicBytes = __webpack_require__(148);
+var SolidityTypeString = __webpack_require__(151);
+var SolidityTypeReal = __webpack_require__(150);
+var SolidityTypeUReal = __webpack_require__(153);
+var SolidityTypeBytes = __webpack_require__(147);
 
 var isDynamic = function (solidityType, type) {
    return solidityType.isDynamicType(type) ||
@@ -21662,15 +21662,15 @@ module.exports = coder;
 
 var f = __webpack_require__(8);
 
-var SolidityTypeAddress = __webpack_require__(185);
-var SolidityTypeBool = __webpack_require__(186);
-var SolidityTypeInt = __webpack_require__(189);
-var SolidityTypeUInt = __webpack_require__(192);
-var SolidityTypeDynamicBytes = __webpack_require__(188);
-var SolidityTypeString = __webpack_require__(191);
-var SolidityTypeReal = __webpack_require__(190);
-var SolidityTypeUReal = __webpack_require__(193);
-var SolidityTypeBytes = __webpack_require__(187);
+var SolidityTypeAddress = __webpack_require__(184);
+var SolidityTypeBool = __webpack_require__(185);
+var SolidityTypeInt = __webpack_require__(188);
+var SolidityTypeUInt = __webpack_require__(191);
+var SolidityTypeDynamicBytes = __webpack_require__(187);
+var SolidityTypeString = __webpack_require__(190);
+var SolidityTypeReal = __webpack_require__(189);
+var SolidityTypeUReal = __webpack_require__(192);
+var SolidityTypeBytes = __webpack_require__(186);
 
 /**
  * SolidityCoder prototype should be used to encode/decode solidity params of any type
@@ -21928,8 +21928,8 @@ module.exports = coder;
 
 
 
-var punycode = __webpack_require__(129);
-var util = __webpack_require__(214);
+var punycode = __webpack_require__(128);
+var util = __webpack_require__(213);
 
 exports.parse = urlParse;
 exports.resolve = urlResolve;
@@ -22004,7 +22004,7 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
       'gopher:': true,
       'file:': true
     },
-    querystring = __webpack_require__(132);
+    querystring = __webpack_require__(131);
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
   if (url && util.isObject(url) && url instanceof Url) return url;
@@ -22917,15 +22917,15 @@ Url.prototype.parseHost = function() {
 
 var f = __webpack_require__(9);
 
-var SolidityTypeAddress = __webpack_require__(219);
-var SolidityTypeBool = __webpack_require__(220);
-var SolidityTypeInt = __webpack_require__(223);
-var SolidityTypeUInt = __webpack_require__(226);
-var SolidityTypeDynamicBytes = __webpack_require__(222);
-var SolidityTypeString = __webpack_require__(225);
-var SolidityTypeReal = __webpack_require__(224);
-var SolidityTypeUReal = __webpack_require__(227);
-var SolidityTypeBytes = __webpack_require__(221);
+var SolidityTypeAddress = __webpack_require__(218);
+var SolidityTypeBool = __webpack_require__(219);
+var SolidityTypeInt = __webpack_require__(222);
+var SolidityTypeUInt = __webpack_require__(225);
+var SolidityTypeDynamicBytes = __webpack_require__(221);
+var SolidityTypeString = __webpack_require__(224);
+var SolidityTypeReal = __webpack_require__(223);
+var SolidityTypeUReal = __webpack_require__(226);
+var SolidityTypeBytes = __webpack_require__(220);
 
 var isDynamic = function (solidityType, type) {
    return solidityType.isDynamicType(type) ||
@@ -27550,7 +27550,7 @@ util.inherits = __webpack_require__(17);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(256);
+var debugUtil = __webpack_require__(255);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -27559,7 +27559,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(134);
+var BufferList = __webpack_require__(133);
 var destroyImpl = __webpack_require__(72);
 var StringDecoder;
 
@@ -28797,7 +28797,7 @@ util.inherits = __webpack_require__(17);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(215)
+  deprecate: __webpack_require__(214)
 };
 /*</replacement>*/
 
@@ -29412,7 +29412,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(139).setImmediate, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(138).setImmediate, __webpack_require__(5)))
 
 /***/ }),
 /* 72 */
@@ -29511,17 +29511,17 @@ exports.Readable = exports;
 exports.Writable = __webpack_require__(71);
 exports.Duplex = __webpack_require__(23);
 exports.Transform = __webpack_require__(70);
-exports.PassThrough = __webpack_require__(133);
+exports.PassThrough = __webpack_require__(132);
 
 
 /***/ }),
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var ClientRequest = __webpack_require__(136)
+/* WEBPACK VAR INJECTION */(function(global) {var ClientRequest = __webpack_require__(135)
 var response = __webpack_require__(77)
-var extend = __webpack_require__(255)
-var statusCodes = __webpack_require__(95)
+var extend = __webpack_require__(254)
+var statusCodes = __webpack_require__(94)
 var url = __webpack_require__(60)
 
 var http = exports
@@ -31634,8 +31634,8 @@ var utils = __webpack_require__(3);
 var coder = __webpack_require__(59);
 var formatters = __webpack_require__(13);
 var sha3 = __webpack_require__(32);
-var Filter = __webpack_require__(46);
-var watches = __webpack_require__(48);
+var Filter = __webpack_require__(47);
+var watches = __webpack_require__(49);
 
 /**
  * This prototype should be used to create event filters
@@ -32381,21 +32381,15 @@ module.exports = Jsonrpc;
 
 /***/ }),
 /* 89 */
-/***/ (function(module, exports) {
-
-module.exports = {"contractName":"Insureum","abi":[{"constant":true,"inputs":[],"name":"hospital","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":false,"inputs":[],"name":"PayInPremium","outputs":[{"name":"","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"withdrawAmount","type":"uint256"}],"name":"claim","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getBalanceOfContract","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getBalanceOfUser","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}],"bytecode":"0x608060405234801561001057600080fd5b5033600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506103e6806100616000396000f30060806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029","deployedBytecode":"0x60806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029","sourceMap":"26:866:0:-;;;135:60;8:9:-1;5:2;;;30:1;27;20:12;5:2;135:60:0;178:10;167:8;;:21;;;;;;;;;;;;;;;;;;26:866;;;;;;","deployedSourceMap":"26:866:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;;;;;;;;;;;;;;;;;;;;;;;660:113;;8:9:-1;5:2;;;30:1;27;20:12;5:2;660:113:0;;;;;;;;;;;;;;;;;;;;;;;518:136;;8:9:-1;5:2;;;30:1;27;20:12;5:2;518:136:0;;;;;;;;;;;;;;;;;;;;;;;;;;779:111;;8:9:-1;5:2;;;30:1;27;20:12;5:2;779:111:0;;;;;;;;;;;;;;;;;;;;;;;105:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;105:23:0;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;249:7;389:13;:25;403:10;389:25;;;;;;;;;;;;;;;;375:9;347:13;:25;361:10;347:25;;;;;;;;;;;;;;;;:37;346:68;;338:77;;;;;;;;454:9;425:13;:25;439:10;425:25;;;;;;;;;;;;;;;;:38;;;;;;;;;;;480:13;:25;494:10;480:25;;;;;;;;;;;;;;;;473:32;;201:311;:::o;660:113::-;717:7;752:4;744:21;;;737:28;;660:113;:::o;518:136::-;593:8;;;;;;;;;;;579:22;;:10;:22;;;571:31;;;;;;;;612:10;:19;;:35;632:14;612:35;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;612:35:0;518:136;:::o;779:111::-;832:7;858:13;:25;872:10;858:25;;;;;;;;;;;;;;;;851:32;;779:111;:::o;105:23::-;;;;;;;;;;;;;:::o","source":"pragma solidity ^0.4.17;\n\ncontract Insureum {\n\n    mapping (address => uint) private insurancePlan;\n\n    address public hospital;\n\n    constructor () public {\n        hospital = msg.sender;\n    }\n\n    function PayInPremium() public payable returns (uint256) {\n        // Here we are making sure that there isn't an overflow issue\n        require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);\n        insurancePlan[msg.sender] += msg.value;\n        return insurancePlan[msg.sender];\n    }\n\n    function claim(uint withdrawAmount) public {\n        require(msg.sender == hospital);\n        msg.sender.transfer(withdrawAmount);\n    }\n\n    function getBalanceOfContract() public constant returns (uint256) {\n         return address(this).balance;\n     }\n\n    function getBalanceOfUser() public constant returns (uint256) {\n        return insurancePlan[msg.sender];\n    }\n}","sourcePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","ast":{"absolutePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[95]},"id":96,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":95,"linearizedBaseContracts":[95],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":95,"src":"51:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"60:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"51:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"71:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":95,"src":"105:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"105:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"157:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"167:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"178:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"178:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"167:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"167:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"147:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"157:0:0"},"scope":95,"src":"135:60:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"258:254:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"347:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"361:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"361:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"347:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"375:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"375:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"347:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"346:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"389:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"403:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"403:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"389:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"346:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"338:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"338:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"338:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"425:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"439:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"439:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"425:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"454:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"454:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"425:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"425:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"480:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"494:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"494:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"480:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"473:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"PayInPremium","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"222:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"249:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"249:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"248:9:0"},"scope":95,"src":"201:311:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":71,"nodeType":"Block","src":"561:93:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":57,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"579:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":58,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"579:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":59,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"593:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"579:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"571:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":61,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"571:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":62,"nodeType":"ExpressionStatement","src":"571:31:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":68,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"632:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":63,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"612:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":66,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":69,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"612:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":70,"nodeType":"ExpressionStatement","src":"612:35:0"}]},"documentation":null,"id":72,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":72,"src":"533:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"533:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"532:21:0"},"payable":false,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"561:0:0"},"scope":95,"src":"518:136:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":82,"nodeType":"Block","src":"726:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":78,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":123,"src":"752:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}],"id":77,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"744:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":79,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"744:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":80,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"744:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":76,"id":81,"nodeType":"Return","src":"737:28:0"}]},"documentation":null,"id":83,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfContract","nodeType":"FunctionDefinition","parameters":{"id":73,"nodeType":"ParameterList","parameters":[],"src":"689:2:0"},"payable":false,"returnParameters":{"id":76,"nodeType":"ParameterList","parameters":[{"constant":false,"id":75,"name":"","nodeType":"VariableDeclaration","scope":83,"src":"717:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":74,"name":"uint256","nodeType":"ElementaryTypeName","src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"716:9:0"},"scope":95,"src":"660:113:0","stateMutability":"view","superFunction":null,"visibility":"public"},{"body":{"id":93,"nodeType":"Block","src":"841:49:0","statements":[{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":88,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"858:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":91,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":89,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"872:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":90,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"872:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"858:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":87,"id":92,"nodeType":"Return","src":"851:32:0"}]},"documentation":null,"id":94,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfUser","nodeType":"FunctionDefinition","parameters":{"id":84,"nodeType":"ParameterList","parameters":[],"src":"804:2:0"},"payable":false,"returnParameters":{"id":87,"nodeType":"ParameterList","parameters":[{"constant":false,"id":86,"name":"","nodeType":"VariableDeclaration","scope":94,"src":"832:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":85,"name":"uint256","nodeType":"ElementaryTypeName","src":"832:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"831:9:0"},"scope":95,"src":"779:111:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":96,"src":"26:866:0"}],"src":"0:892:0"},"legacyAST":{"absolutePath":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol","exportedSymbols":{"Insureum":[95]},"id":96,"nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity","^","0.4",".17"],"nodeType":"PragmaDirective","src":"0:24:0"},{"baseContracts":[],"contractDependencies":[],"contractKind":"contract","documentation":null,"fullyImplemented":true,"id":95,"linearizedBaseContracts":[95],"name":"Insureum","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":5,"name":"insurancePlan","nodeType":"VariableDeclaration","scope":95,"src":"51:47:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"typeName":{"id":4,"keyType":{"id":2,"name":"address","nodeType":"ElementaryTypeName","src":"60:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Mapping","src":"51:25:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"},"valueType":{"id":3,"name":"uint","nodeType":"ElementaryTypeName","src":"71:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}},"value":null,"visibility":"private"},{"constant":false,"id":7,"name":"hospital","nodeType":"VariableDeclaration","scope":95,"src":"105:23:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"},"typeName":{"id":6,"name":"address","nodeType":"ElementaryTypeName","src":"105:7:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"value":null,"visibility":"public"},{"body":{"id":15,"nodeType":"Block","src":"157:38:0","statements":[{"expression":{"argumentTypes":null,"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"id":10,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"167:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":11,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"178:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"178:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"167:21:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":14,"nodeType":"ExpressionStatement","src":"167:21:0"}]},"documentation":null,"id":16,"implemented":true,"isConstructor":true,"isDeclaredConst":false,"modifiers":[],"name":"","nodeType":"FunctionDefinition","parameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"147:2:0"},"payable":false,"returnParameters":{"id":9,"nodeType":"ParameterList","parameters":[],"src":"157:0:0"},"scope":95,"src":"135:60:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":50,"nodeType":"Block","src":"258:254:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":34,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"components":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":28,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":22,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"347:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":25,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":23,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"361:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":24,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"361:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"347:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":26,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"375:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":27,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"375:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"347:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"id":29,"isConstant":false,"isInlineArray":false,"isLValue":false,"isPure":false,"lValueRequested":false,"nodeType":"TupleExpression","src":"346:39:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":">=","rightExpression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":30,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"389:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":33,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":31,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"403:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":32,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"403:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"389:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"346:68:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":21,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"338:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":35,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"338:77:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":36,"nodeType":"ExpressionStatement","src":"338:77:0"},{"expression":{"argumentTypes":null,"id":43,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":37,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"425:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":40,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":38,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"439:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":39,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"439:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":true,"nodeType":"IndexAccess","src":"425:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"+=","rightHandSide":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":41,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"454:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":42,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"value","nodeType":"MemberAccess","referencedDeclaration":null,"src":"454:9:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"425:38:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":44,"nodeType":"ExpressionStatement","src":"425:38:0"},{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":45,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"480:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":48,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":46,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"494:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":47,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"494:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"480:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":20,"id":49,"nodeType":"Return","src":"473:32:0"}]},"documentation":null,"id":51,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"PayInPremium","nodeType":"FunctionDefinition","parameters":{"id":17,"nodeType":"ParameterList","parameters":[],"src":"222:2:0"},"payable":true,"returnParameters":{"id":20,"nodeType":"ParameterList","parameters":[{"constant":false,"id":19,"name":"","nodeType":"VariableDeclaration","scope":51,"src":"249:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":18,"name":"uint256","nodeType":"ElementaryTypeName","src":"249:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"248:9:0"},"scope":95,"src":"201:311:0","stateMutability":"payable","superFunction":null,"visibility":"public"},{"body":{"id":71,"nodeType":"Block","src":"561:93:0","statements":[{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"commonType":{"typeIdentifier":"t_address","typeString":"address"},"id":60,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":57,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"579:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":58,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"579:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"nodeType":"BinaryOperation","operator":"==","rightExpression":{"argumentTypes":null,"id":59,"name":"hospital","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":7,"src":"593:8:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"src":"579:22:0","typeDescriptions":{"typeIdentifier":"t_bool","typeString":"bool"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_bool","typeString":"bool"}],"id":56,"name":"require","nodeType":"Identifier","overloadedDeclarations":[113,114],"referencedDeclaration":113,"src":"571:7:0","typeDescriptions":{"typeIdentifier":"t_function_require_pure$_t_bool_$returns$__$","typeString":"function (bool) pure"}},"id":61,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"571:31:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":62,"nodeType":"ExpressionStatement","src":"571:31:0"},{"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":68,"name":"withdrawAmount","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":53,"src":"632:14:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_uint256","typeString":"uint256"}],"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":63,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"612:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":66,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":67,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"transfer","nodeType":"MemberAccess","referencedDeclaration":null,"src":"612:19:0","typeDescriptions":{"typeIdentifier":"t_function_transfer_nonpayable$_t_uint256_$returns$__$","typeString":"function (uint256)"}},"id":69,"isConstant":false,"isLValue":false,"isPure":false,"kind":"functionCall","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"612:35:0","typeDescriptions":{"typeIdentifier":"t_tuple$__$","typeString":"tuple()"}},"id":70,"nodeType":"ExpressionStatement","src":"612:35:0"}]},"documentation":null,"id":72,"implemented":true,"isConstructor":false,"isDeclaredConst":false,"modifiers":[],"name":"claim","nodeType":"FunctionDefinition","parameters":{"id":54,"nodeType":"ParameterList","parameters":[{"constant":false,"id":53,"name":"withdrawAmount","nodeType":"VariableDeclaration","scope":72,"src":"533:19:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":52,"name":"uint","nodeType":"ElementaryTypeName","src":"533:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"532:21:0"},"payable":false,"returnParameters":{"id":55,"nodeType":"ParameterList","parameters":[],"src":"561:0:0"},"scope":95,"src":"518:136:0","stateMutability":"nonpayable","superFunction":null,"visibility":"public"},{"body":{"id":82,"nodeType":"Block","src":"726:47:0","statements":[{"expression":{"argumentTypes":null,"expression":{"argumentTypes":null,"arguments":[{"argumentTypes":null,"id":78,"name":"this","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":123,"src":"752:4:0","typeDescriptions":{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}}],"expression":{"argumentTypes":[{"typeIdentifier":"t_contract$_Insureum_$95","typeString":"contract Insureum"}],"id":77,"isConstant":false,"isLValue":false,"isPure":true,"lValueRequested":false,"nodeType":"ElementaryTypeNameExpression","src":"744:7:0","typeDescriptions":{"typeIdentifier":"t_type$_t_address_$","typeString":"type(address)"},"typeName":"address"},"id":79,"isConstant":false,"isLValue":false,"isPure":false,"kind":"typeConversion","lValueRequested":false,"names":[],"nodeType":"FunctionCall","src":"744:13:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"id":80,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"balance","nodeType":"MemberAccess","referencedDeclaration":null,"src":"744:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":76,"id":81,"nodeType":"Return","src":"737:28:0"}]},"documentation":null,"id":83,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfContract","nodeType":"FunctionDefinition","parameters":{"id":73,"nodeType":"ParameterList","parameters":[],"src":"689:2:0"},"payable":false,"returnParameters":{"id":76,"nodeType":"ParameterList","parameters":[{"constant":false,"id":75,"name":"","nodeType":"VariableDeclaration","scope":83,"src":"717:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":74,"name":"uint256","nodeType":"ElementaryTypeName","src":"717:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"716:9:0"},"scope":95,"src":"660:113:0","stateMutability":"view","superFunction":null,"visibility":"public"},{"body":{"id":93,"nodeType":"Block","src":"841:49:0","statements":[{"expression":{"argumentTypes":null,"baseExpression":{"argumentTypes":null,"id":88,"name":"insurancePlan","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":5,"src":"858:13:0","typeDescriptions":{"typeIdentifier":"t_mapping$_t_address_$_t_uint256_$","typeString":"mapping(address => uint256)"}},"id":91,"indexExpression":{"argumentTypes":null,"expression":{"argumentTypes":null,"id":89,"name":"msg","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":110,"src":"872:3:0","typeDescriptions":{"typeIdentifier":"t_magic_message","typeString":"msg"}},"id":90,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"memberName":"sender","nodeType":"MemberAccess","referencedDeclaration":null,"src":"872:10:0","typeDescriptions":{"typeIdentifier":"t_address","typeString":"address"}},"isConstant":false,"isLValue":true,"isPure":false,"lValueRequested":false,"nodeType":"IndexAccess","src":"858:25:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"functionReturnParameters":87,"id":92,"nodeType":"Return","src":"851:32:0"}]},"documentation":null,"id":94,"implemented":true,"isConstructor":false,"isDeclaredConst":true,"modifiers":[],"name":"getBalanceOfUser","nodeType":"FunctionDefinition","parameters":{"id":84,"nodeType":"ParameterList","parameters":[],"src":"804:2:0"},"payable":false,"returnParameters":{"id":87,"nodeType":"ParameterList","parameters":[{"constant":false,"id":86,"name":"","nodeType":"VariableDeclaration","scope":94,"src":"832:7:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":85,"name":"uint256","nodeType":"ElementaryTypeName","src":"832:7:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":null,"visibility":"internal"}],"src":"831:9:0"},"scope":95,"src":"779:111:0","stateMutability":"view","superFunction":null,"visibility":"public"}],"scope":96,"src":"26:866:0"}],"src":"0:892:0"},"compiler":{"name":"solc","version":"0.4.24+commit.e67f0147.Emscripten.clang"},"networks":{"4447":{"events":{},"links":{},"address":"0x3a26973013a3945705ab54dab86b08ea20fe6d28","transactionHash":"0x65d37efb1f4d85f2fc17e99369477858be06ac48e11f90cd6a834c3a840bdee9"}},"schemaVersion":"2.0.1","updatedAt":"2018-07-29T18:21:42.982Z"}
-
-/***/ }),
-/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(119);
+var content = __webpack_require__(118);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(138)(content, {});
+var update = __webpack_require__(137)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -32412,11 +32406,11 @@ if(false) {
 }
 
 /***/ }),
-/* 91 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Schema = __webpack_require__(176);
-var Contract = __webpack_require__(180);
+var Schema = __webpack_require__(175);
+var Contract = __webpack_require__(179);
 
 var contract = function(options) {
   options = Schema.normalizeOptions(options);
@@ -32482,10 +32476,10 @@ if (typeof window !== "undefined") {
 
 
 /***/ }),
-/* 92 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Web3 = __webpack_require__(230);
+var Web3 = __webpack_require__(229);
 
 // dont override global variable
 if (typeof window !== 'undefined' && typeof window.Web3 === 'undefined') {
@@ -32496,19 +32490,18 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 93 */
+/* 92 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__stylesheets_app_css__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__stylesheets_app_css__ = __webpack_require__(89);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__stylesheets_app_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__stylesheets_app_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_web3__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_web3__ = __webpack_require__(91);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_web3___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_web3__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_truffle_contract__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_truffle_contract__ = __webpack_require__(90);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_truffle_contract___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_truffle_contract__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__build_contracts_Insureum_json__ = __webpack_require__(89);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__build_contracts_Insureum_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__build_contracts_Insureum_json__);
+throw new Error("Cannot find module \"../../build/contracts/Insureum.json\"");
 // Import the page's CSS. Webpack will know what to do with it.
 
 
@@ -32550,7 +32543,7 @@ window.App = {
       accounts = accs;
       account = accounts[0];
 
-      self.getBalance();
+      self.getBalanceOfContract();
     });
   },
 
@@ -32597,9 +32590,9 @@ window.App = {
     localStorage.setItem('type', `${value}`);
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.payInPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+      return meta.PayInPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
     }).then(function() {
-      self.getBalance()
+      self.getBalanceOfContract()
       location.href = '/user.html';
     }).catch(function(e) {
       console.log(e);
@@ -32607,16 +32600,15 @@ window.App = {
     });
   },
 
-  payOut: function() {
+  payOut: function(amount) {
     var self = this;
     var meta;
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      amount = document.getElementById("amount").value;
       return meta.claim(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
     }).then(function() {
-      self.getBalance()
+      self.getBalanceOfContract()
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error paying out balance; see log.");
@@ -32639,11 +32631,12 @@ window.addEventListener('load', function() {
   }
 
   App.start();
+  App.getBalanceOfUser();
 });
 
 
 /***/ }),
-/* 94 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32801,7 +32794,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 95 */
+/* 94 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -32871,7 +32864,7 @@ module.exports = {
 
 
 /***/ }),
-/* 96 */
+/* 95 */
 /***/ (function(module, exports) {
 
 /* jshint node: true */
@@ -33153,7 +33146,7 @@ module.exports = {
 
 
 /***/ }),
-/* 97 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -33390,7 +33383,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 98 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -33544,7 +33537,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 99 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -33615,7 +33608,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -33696,7 +33689,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -33779,7 +33772,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -33900,7 +33893,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -33963,7 +33956,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34008,7 +34001,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34067,7 +34060,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34121,7 +34114,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34170,7 +34163,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34215,7 +34208,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34250,7 +34243,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34300,7 +34293,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34450,7 +34443,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34645,7 +34638,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34842,7 +34835,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 114 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -34986,7 +34979,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 115 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -35258,7 +35251,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 116 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -35343,7 +35336,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 117 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -35431,7 +35424,7 @@ module.exports = {
 }));
 
 /***/ }),
-/* 118 */
+/* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
@@ -36206,10 +36199,10 @@ module.exports = {
 }));
 
 /***/ }),
-/* 119 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(120)();
+exports = module.exports = __webpack_require__(119)();
 // imports
 
 
@@ -36220,7 +36213,7 @@ exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-f
 
 
 /***/ }),
-/* 120 */
+/* 119 */
 /***/ (function(module, exports) {
 
 /*
@@ -36276,7 +36269,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 121 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36284,7 +36277,7 @@ module.exports = function() {
 
 /* eslint-disable */
 
-var utils = __webpack_require__(122);
+var utils = __webpack_require__(121);
 var uint256Coder = utils.uint256Coder;
 var coderBoolean = utils.coderBoolean;
 var coderFixedBytes = utils.coderFixedBytes;
@@ -36416,15 +36409,15 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 122 */
+/* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
 var BN = __webpack_require__(64);
-var numberToBN = __webpack_require__(127);
-var keccak256 = __webpack_require__(126).keccak_256;
+var numberToBN = __webpack_require__(126);
+var keccak256 = __webpack_require__(125).keccak_256;
 
 // from ethereumjs-util
 function stripZeros(aInput) {
@@ -36840,7 +36833,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 123 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var http = __webpack_require__(75)
@@ -36877,7 +36870,7 @@ function validateParams (params) {
 
 
 /***/ }),
-/* 124 */
+/* 123 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -36967,7 +36960,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 125 */
+/* 124 */
 /***/ (function(module, exports) {
 
 /**
@@ -36986,7 +36979,7 @@ module.exports = function isHexPrefixed(str) {
 
 
 /***/ }),
-/* 126 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {/**
@@ -37464,11 +37457,11 @@ module.exports = function isHexPrefixed(str) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(5)))
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BN = __webpack_require__(64);
-var stripHexPrefix = __webpack_require__(137);
+var stripHexPrefix = __webpack_require__(136);
 
 /**
  * Returns a BN object, converts a number value to a BN
@@ -37508,7 +37501,7 @@ module.exports = function numberToBN(arg) {
 
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ (function(module, exports) {
 
 exports.endianness = function () { return 'LE' };
@@ -37563,7 +37556,7 @@ exports.homedir = function () {
 
 
 /***/ }),
-/* 129 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -38102,7 +38095,7 @@ exports.homedir = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)(module), __webpack_require__(5)))
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -38193,7 +38186,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -38285,18 +38278,18 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(130);
-exports.encode = exports.stringify = __webpack_require__(131);
+exports.decode = exports.parse = __webpack_require__(129);
+exports.encode = exports.stringify = __webpack_require__(130);
 
 
 /***/ }),
-/* 133 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -38349,7 +38342,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 134 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -38358,7 +38351,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Buffer = __webpack_require__(40).Buffer;
-var util = __webpack_require__(257);
+var util = __webpack_require__(256);
 
 function copyBuffer(src, target, offset) {
   src.copy(target, offset);
@@ -38434,7 +38427,7 @@ if (util && util.inspect && util.inspect.custom) {
 }
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -38627,14 +38620,14 @@ if (util && util.inspect && util.inspect.custom) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(15)))
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer, global, process) {var capability = __webpack_require__(76)
 var inherits = __webpack_require__(17)
 var response = __webpack_require__(77)
 var stream = __webpack_require__(74)
-var toArrayBuffer = __webpack_require__(140)
+var toArrayBuffer = __webpack_require__(139)
 
 var IncomingMessage = response.IncomingMessage
 var rStates = response.readyStates
@@ -38961,10 +38954,10 @@ var unsafeHeaders = [
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer, __webpack_require__(5), __webpack_require__(15)))
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isHexPrefixed = __webpack_require__(125);
+var isHexPrefixed = __webpack_require__(124);
 
 /**
  * Removes '0x' from a given `String` is present
@@ -38981,7 +38974,7 @@ module.exports = function stripHexPrefix(str) {
 
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(module, exports) {
 
 /*
@@ -39233,7 +39226,7 @@ function updateLink(linkElement, obj) {
 
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -39289,7 +39282,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(135);
+__webpack_require__(134);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -39303,7 +39296,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(6).Buffer
@@ -39336,12 +39329,12 @@ module.exports = function (buf) {
 
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // TODO: remove web3 requirement
 // Call functions directly on the provider.
-var Web3 = __webpack_require__(142);
+var Web3 = __webpack_require__(141);
 
 var Blockchain = {
   parse: function(uri) {
@@ -39403,10 +39396,10 @@ module.exports = Blockchain;
 
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Web3 = __webpack_require__(157);
+var Web3 = __webpack_require__(156);
 
 // dont override global variable
 if (typeof window !== 'undefined' && typeof window.Web3 === 'undefined') {
@@ -39417,25 +39410,25 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"name","outputs":[{"name":"o_name","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"content","outputs":[{"name":"","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"subRegistrar","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_registrar","type":"address"}],"name":"setSubRegistrar","outputs":[],"type":"function"},{"constant":false,"inputs":[],"name":"Registrar","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"},{"name":"_primary","type":"bool"}],"name":"setAddress","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_content","type":"bytes32"}],"name":"setContent","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"disown","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_winner","type":"address"}],"name":"AuctionEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_bidder","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"NewBid","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"},{"indexed":true,"name":"addr","type":"address"}],"name":"PrimaryChanged","type":"event"}]
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_refund","type":"address"}],"name":"disown","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"}],"name":"setAddr","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"}]
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"indirectId","type":"bytes32"},{"name":"value","type":"uint256"}],"name":"icapTransfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"to","type":"bytes32"}],"name":"deposit","outputs":[],"payable":true,"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"AnonymousDeposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"indirectId","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"IcapTransfer","type":"event"}]
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39467,7 +39460,7 @@ module.exports = SolidityTypeAddress;
 
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39499,7 +39492,7 @@ module.exports = SolidityTypeBool;
 
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39534,7 +39527,7 @@ module.exports = SolidityTypeBytes;
 
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39560,7 +39553,7 @@ module.exports = SolidityTypeDynamicBytes;
 
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39598,7 +39591,7 @@ module.exports = SolidityTypeInt;
 
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39636,7 +39629,7 @@ module.exports = SolidityTypeReal;
 
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39662,7 +39655,7 @@ module.exports = SolidityTypeString;
 
 
 /***/ }),
-/* 153 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39700,7 +39693,7 @@ module.exports = SolidityTypeUInt;
 
 
 /***/ }),
-/* 154 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(7);
@@ -39738,7 +39731,7 @@ module.exports = SolidityTypeUReal;
 
 
 /***/ }),
-/* 155 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -39754,13 +39747,13 @@ if (typeof XMLHttpRequest === 'undefined') {
 
 
 /***/ }),
-/* 156 */
+/* 155 */
 /***/ (function(module, exports) {
 
 module.exports = {"version":"0.18.4"}
 
 /***/ }),
-/* 157 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -39790,23 +39783,23 @@ module.exports = {"version":"0.18.4"}
  * @date 2014
  */
 
-var RequestManager = __webpack_require__(172);
+var RequestManager = __webpack_require__(171);
 var Iban = __webpack_require__(43);
-var Eth = __webpack_require__(166);
-var DB = __webpack_require__(165);
-var Shh = __webpack_require__(169);
-var Net = __webpack_require__(167);
-var Personal = __webpack_require__(168);
-var Swarm = __webpack_require__(170);
-var Settings = __webpack_require__(173);
-var version = __webpack_require__(156);
+var Eth = __webpack_require__(165);
+var DB = __webpack_require__(164);
+var Shh = __webpack_require__(168);
+var Net = __webpack_require__(166);
+var Personal = __webpack_require__(167);
+var Swarm = __webpack_require__(169);
+var Settings = __webpack_require__(172);
+var version = __webpack_require__(155);
 var utils = __webpack_require__(2);
 var sha3 = __webpack_require__(30);
-var extend = __webpack_require__(161);
-var Batch = __webpack_require__(159);
+var extend = __webpack_require__(160);
+var Batch = __webpack_require__(158);
 var Property = __webpack_require__(24);
-var HttpProvider = __webpack_require__(163);
-var IpcProvider = __webpack_require__(164);
+var HttpProvider = __webpack_require__(162);
+var IpcProvider = __webpack_require__(163);
 var BigNumber = __webpack_require__(28);
 
 
@@ -39916,7 +39909,7 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 158 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -40010,7 +40003,7 @@ module.exports = AllSolidityEvents;
 
 
 /***/ }),
-/* 159 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -40082,7 +40075,7 @@ module.exports = Batch;
 
 
 /***/ }),
-/* 160 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -40110,8 +40103,8 @@ module.exports = Batch;
 var utils = __webpack_require__(2);
 var coder = __webpack_require__(58);
 var SolidityEvent = __webpack_require__(80);
-var SolidityFunction = __webpack_require__(162);
-var AllEvents = __webpack_require__(158);
+var SolidityFunction = __webpack_require__(161);
+var AllEvents = __webpack_require__(157);
 
 /**
  * Should be called to encode constructor params
@@ -40398,7 +40391,7 @@ module.exports = ContractFactory;
 
 
 /***/ }),
-/* 161 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var formatters = __webpack_require__(11);
@@ -40452,7 +40445,7 @@ module.exports = extend;
 
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -40720,7 +40713,7 @@ module.exports = SolidityFunction;
 
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -40757,10 +40750,10 @@ if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     XMLHttpRequest = window.XMLHttpRequest; // jshint ignore: line
 // node
 } else {
-    XMLHttpRequest = __webpack_require__(155).XMLHttpRequest; // jshint ignore: line
+    XMLHttpRequest = __webpack_require__(154).XMLHttpRequest; // jshint ignore: line
 }
 
-var XHR2 = __webpack_require__(254); // jshint ignore: line
+var XHR2 = __webpack_require__(253); // jshint ignore: line
 
 /**
  * HttpProvider should be used to send rpc calls over http
@@ -40879,7 +40872,7 @@ module.exports = HttpProvider;
 
 
 /***/ }),
-/* 164 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41093,7 +41086,7 @@ module.exports = IpcProvider;
 
 
 /***/ }),
-/* 165 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -41165,7 +41158,7 @@ module.exports = DB;
 
 
 /***/ }),
-/* 166 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41199,13 +41192,13 @@ var utils = __webpack_require__(2);
 var Method = __webpack_require__(18);
 var Property = __webpack_require__(24);
 var c = __webpack_require__(41);
-var Contract = __webpack_require__(160);
+var Contract = __webpack_require__(159);
 var watches = __webpack_require__(44);
 var Filter = __webpack_require__(42);
-var IsSyncing = __webpack_require__(174);
-var namereg = __webpack_require__(171);
+var IsSyncing = __webpack_require__(173);
+var namereg = __webpack_require__(170);
 var Iban = __webpack_require__(43);
-var transfer = __webpack_require__(175);
+var transfer = __webpack_require__(174);
 
 var blockCall = function (args) {
     return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "eth_getBlockByHash" : "eth_getBlockByNumber";
@@ -41526,7 +41519,7 @@ module.exports = Eth;
 
 
 /***/ }),
-/* 167 */
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -41584,7 +41577,7 @@ module.exports = Net;
 
 
 /***/ }),
-/* 168 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41684,7 +41677,7 @@ module.exports = Personal;
 
 
 /***/ }),
-/* 169 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -41776,7 +41769,7 @@ module.exports = Shh;
 
 
 /***/ }),
-/* 170 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41928,7 +41921,7 @@ module.exports = Swarm;
 
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -41953,8 +41946,8 @@ module.exports = Swarm;
  * @date 2015
  */
 
-var globalRegistrarAbi = __webpack_require__(143);
-var icapRegistrarAbi= __webpack_require__(144);
+var globalRegistrarAbi = __webpack_require__(142);
+var icapRegistrarAbi= __webpack_require__(143);
 
 var globalNameregAddress = '0xc6d9d2cd449a754c494264e1809c50e34d64562b';
 var icapNameregAddress = '0xa1a111bc074c9cfa781f0c38e63bd51c91b8af00';
@@ -41973,7 +41966,7 @@ module.exports = {
 
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -42244,7 +42237,7 @@ module.exports = RequestManager;
 
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ (function(module, exports) {
 
 
@@ -42259,7 +42252,7 @@ module.exports = Settings;
 
 
 /***/ }),
-/* 174 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -42358,7 +42351,7 @@ module.exports = IsSyncing;
 
 
 /***/ }),
-/* 175 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -42384,7 +42377,7 @@ module.exports = IsSyncing;
  */
 
 var Iban = __webpack_require__(43);
-var exchangeAbi = __webpack_require__(145);
+var exchangeAbi = __webpack_require__(144);
 
 /**
  * Should be used to make Iban transfer
@@ -42456,11 +42449,11 @@ module.exports = transfer;
 
 
 /***/ }),
-/* 176 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var sha3 = __webpack_require__(177);
-var schema_version = __webpack_require__(179).version;
+var sha3 = __webpack_require__(176);
+var schema_version = __webpack_require__(178).version;
 
 var TruffleSchema = {
   // Normalize options passed in to be the exact options required
@@ -42643,13 +42636,13 @@ module.exports = TruffleSchema;
 
 
 /***/ }),
-/* 177 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory, undef) {
 	if (true) {
 		// CommonJS
-		module.exports = exports = factory(__webpack_require__(82), __webpack_require__(178));
+		module.exports = exports = factory(__webpack_require__(82), __webpack_require__(177));
 	}
 	else if (typeof define === "function" && define.amd) {
 		// AMD
@@ -42971,7 +42964,7 @@ module.exports = TruffleSchema;
 }));
 
 /***/ }),
-/* 178 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function (root, factory) {
@@ -43280,18 +43273,18 @@ module.exports = TruffleSchema;
 }));
 
 /***/ }),
-/* 179 */
+/* 178 */
 /***/ (function(module, exports) {
 
 module.exports = {"_args":[["truffle-contract-schema@0.0.5","/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum"]],"_development":true,"_from":"truffle-contract-schema@0.0.5","_id":"truffle-contract-schema@0.0.5","_inBundle":false,"_integrity":"sha1-Xp0gvQvyon/pQxB0gknUhO7kmWE=","_location":"/truffle-contract-schema","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"truffle-contract-schema@0.0.5","name":"truffle-contract-schema","escapedName":"truffle-contract-schema","rawSpec":"0.0.5","saveSpec":null,"fetchSpec":"0.0.5"},"_requiredBy":["/truffle-contract"],"_resolved":"https://registry.npmjs.org/truffle-contract-schema/-/truffle-contract-schema-0.0.5.tgz","_spec":"0.0.5","_where":"/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum","author":{"name":"Tim Coulter","email":"tim.coulter@consensys.net"},"bugs":{"url":"https://github.com/trufflesuite/truffle-schema/issues"},"dependencies":{"crypto-js":"^3.1.9-1"},"description":"JSON schema for contract artifacts","devDependencies":{"mocha":"^3.2.0"},"homepage":"https://github.com/trufflesuite/truffle-schema#readme","keywords":["ethereum","json","schema","contract","artifacts"],"license":"MIT","main":"index.js","name":"truffle-contract-schema","repository":{"type":"git","url":"git+https://github.com/trufflesuite/truffle-schema.git"},"scripts":{"test":"mocha"},"version":"0.0.5"}
 
 /***/ }),
-/* 180 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global, module) {var ethJSABI = __webpack_require__(121);
-var BlockchainUtils = __webpack_require__(141);
-var Web3 = __webpack_require__(181);
+/* WEBPACK VAR INJECTION */(function(global, module) {var ethJSABI = __webpack_require__(120);
+var BlockchainUtils = __webpack_require__(140);
+var Web3 = __webpack_require__(180);
 
 // For browserified version. If browserify gave us an empty version,
 // look for the one provided by the user.
@@ -44088,10 +44081,10 @@ var contract = (function(module) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(54)(module)))
 
 /***/ }),
-/* 181 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Web3 = __webpack_require__(196);
+var Web3 = __webpack_require__(195);
 
 // dont override global variable
 if (typeof window !== 'undefined' && typeof window.Web3 === 'undefined') {
@@ -44102,25 +44095,25 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 182 */
+/* 181 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"name","outputs":[{"name":"o_name","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"content","outputs":[{"name":"","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"subRegistrar","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_registrar","type":"address"}],"name":"setSubRegistrar","outputs":[],"type":"function"},{"constant":false,"inputs":[],"name":"Registrar","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"},{"name":"_primary","type":"bool"}],"name":"setAddress","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_content","type":"bytes32"}],"name":"setContent","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"disown","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_winner","type":"address"}],"name":"AuctionEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_bidder","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"NewBid","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"},{"indexed":true,"name":"addr","type":"address"}],"name":"PrimaryChanged","type":"event"}]
 
 /***/ }),
-/* 183 */
+/* 182 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_refund","type":"address"}],"name":"disown","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"}],"name":"setAddr","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"}]
 
 /***/ }),
-/* 184 */
+/* 183 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"indirectId","type":"bytes32"},{"name":"value","type":"uint256"}],"name":"icapTransfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"to","type":"bytes32"}],"name":"deposit","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"AnonymousDeposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"indirectId","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"IcapTransfer","type":"event"}]
 
 /***/ }),
-/* 185 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44157,7 +44150,7 @@ module.exports = SolidityTypeAddress;
 
 
 /***/ }),
-/* 186 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44193,7 +44186,7 @@ module.exports = SolidityTypeBool;
 
 
 /***/ }),
-/* 187 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44237,7 +44230,7 @@ module.exports = SolidityTypeBytes;
 
 
 /***/ }),
-/* 188 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44268,7 +44261,7 @@ module.exports = SolidityTypeDynamicBytes;
 
 
 /***/ }),
-/* 189 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44310,7 +44303,7 @@ module.exports = SolidityTypeInt;
 
 
 /***/ }),
-/* 190 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44352,7 +44345,7 @@ module.exports = SolidityTypeReal;
 
 
 /***/ }),
-/* 191 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44383,7 +44376,7 @@ module.exports = SolidityTypeString;
 
 
 /***/ }),
-/* 192 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44425,7 +44418,7 @@ module.exports = SolidityTypeUInt;
 
 
 /***/ }),
-/* 193 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(8);
@@ -44467,7 +44460,7 @@ module.exports = SolidityTypeUReal;
 
 
 /***/ }),
-/* 194 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44483,13 +44476,13 @@ if (typeof XMLHttpRequest === 'undefined') {
 
 
 /***/ }),
-/* 195 */
+/* 194 */
 /***/ (function(module, exports) {
 
 module.exports = {"version":"0.16.0"}
 
 /***/ }),
-/* 196 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -44519,22 +44512,22 @@ module.exports = {"version":"0.16.0"}
  * @date 2014
  */
 
-var RequestManager = __webpack_require__(210);
-var Iban = __webpack_require__(47);
-var Eth = __webpack_require__(205);
-var DB = __webpack_require__(204);
-var Shh = __webpack_require__(208);
-var Net = __webpack_require__(206);
-var Personal = __webpack_require__(207);
-var Settings = __webpack_require__(211);
-var version = __webpack_require__(195);
+var RequestManager = __webpack_require__(209);
+var Iban = __webpack_require__(48);
+var Eth = __webpack_require__(204);
+var DB = __webpack_require__(203);
+var Shh = __webpack_require__(207);
+var Net = __webpack_require__(205);
+var Personal = __webpack_require__(206);
+var Settings = __webpack_require__(210);
+var version = __webpack_require__(194);
 var utils = __webpack_require__(3);
 var sha3 = __webpack_require__(32);
-var extend = __webpack_require__(200);
-var Batch = __webpack_require__(198);
+var extend = __webpack_require__(199);
+var Batch = __webpack_require__(197);
 var Property = __webpack_require__(34);
-var HttpProvider = __webpack_require__(202);
-var IpcProvider = __webpack_require__(203);
+var HttpProvider = __webpack_require__(201);
+var IpcProvider = __webpack_require__(202);
 
 
 
@@ -44641,7 +44634,7 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 197 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -44670,8 +44663,8 @@ var sha3 = __webpack_require__(32);
 var SolidityEvent = __webpack_require__(84);
 var formatters = __webpack_require__(13);
 var utils = __webpack_require__(3);
-var Filter = __webpack_require__(46);
-var watches = __webpack_require__(48);
+var Filter = __webpack_require__(47);
+var watches = __webpack_require__(49);
 
 var AllSolidityEvents = function (requestManager, json, address) {
     this._requestManager = requestManager;
@@ -44735,7 +44728,7 @@ module.exports = AllSolidityEvents;
 
 
 /***/ }),
-/* 198 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -44807,7 +44800,7 @@ module.exports = Batch;
 
 
 /***/ }),
-/* 199 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -44835,8 +44828,8 @@ module.exports = Batch;
 var utils = __webpack_require__(3);
 var coder = __webpack_require__(59);
 var SolidityEvent = __webpack_require__(84);
-var SolidityFunction = __webpack_require__(201);
-var AllEvents = __webpack_require__(197);
+var SolidityFunction = __webpack_require__(200);
+var AllEvents = __webpack_require__(196);
 
 /**
  * Should be called to encode constructor params
@@ -45111,7 +45104,7 @@ module.exports = ContractFactory;
 
 
 /***/ }),
-/* 200 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var formatters = __webpack_require__(13);
@@ -45165,7 +45158,7 @@ module.exports = extend;
 
 
 /***/ }),
-/* 201 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -45418,7 +45411,7 @@ module.exports = SolidityFunction;
 
 
 /***/ }),
-/* 202 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45463,7 +45456,7 @@ if (typeof Meteor !== 'undefined' && Meteor.isServer) { // jshint ignore: line
 
 // node
 } else {
-    XMLHttpRequest = __webpack_require__(194).XMLHttpRequest; // jshint ignore: line
+    XMLHttpRequest = __webpack_require__(193).XMLHttpRequest; // jshint ignore: line
 }
 
 /**
@@ -45571,7 +45564,7 @@ module.exports = HttpProvider;
 
 
 /***/ }),
-/* 203 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45785,7 +45778,7 @@ module.exports = IpcProvider;
 
 
 /***/ }),
-/* 204 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -45857,7 +45850,7 @@ module.exports = DB;
 
 
 /***/ }),
-/* 205 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45890,14 +45883,14 @@ var formatters = __webpack_require__(13);
 var utils = __webpack_require__(3);
 var Method = __webpack_require__(25);
 var Property = __webpack_require__(34);
-var c = __webpack_require__(45);
-var Contract = __webpack_require__(199);
-var watches = __webpack_require__(48);
-var Filter = __webpack_require__(46);
-var IsSyncing = __webpack_require__(212);
-var namereg = __webpack_require__(209);
-var Iban = __webpack_require__(47);
-var transfer = __webpack_require__(213);
+var c = __webpack_require__(46);
+var Contract = __webpack_require__(198);
+var watches = __webpack_require__(49);
+var Filter = __webpack_require__(47);
+var IsSyncing = __webpack_require__(211);
+var namereg = __webpack_require__(208);
+var Iban = __webpack_require__(48);
+var transfer = __webpack_require__(212);
 
 var blockCall = function (args) {
     return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "eth_getBlockByHash" : "eth_getBlockByNumber";
@@ -46207,7 +46200,7 @@ module.exports = Eth;
 
 
 /***/ }),
-/* 206 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46265,7 +46258,7 @@ module.exports = Net;
 
 
 /***/ }),
-/* 207 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46357,7 +46350,7 @@ module.exports = Personal;
 
 
 /***/ }),
-/* 208 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46384,8 +46377,8 @@ module.exports = Personal;
 
 var Method = __webpack_require__(25);
 var formatters = __webpack_require__(13);
-var Filter = __webpack_require__(46);
-var watches = __webpack_require__(48);
+var Filter = __webpack_require__(47);
+var watches = __webpack_require__(49);
 
 var Shh = function (web3) {
     this._requestManager = web3._requestManager;
@@ -46449,7 +46442,7 @@ module.exports = Shh;
 
 
 /***/ }),
-/* 209 */
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46474,8 +46467,8 @@ module.exports = Shh;
  * @date 2015
  */
 
-var globalRegistrarAbi = __webpack_require__(182);
-var icapRegistrarAbi= __webpack_require__(183);
+var globalRegistrarAbi = __webpack_require__(181);
+var icapRegistrarAbi= __webpack_require__(182);
 
 var globalNameregAddress = '0xc6d9d2cd449a754c494264e1809c50e34d64562b';
 var icapNameregAddress = '0xa1a111bc074c9cfa781f0c38e63bd51c91b8af00';
@@ -46494,7 +46487,7 @@ module.exports = {
 
 
 /***/ }),
-/* 210 */
+/* 209 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46525,7 +46518,7 @@ module.exports = {
 
 var Jsonrpc = __webpack_require__(85);
 var utils = __webpack_require__(3);
-var c = __webpack_require__(45);
+var c = __webpack_require__(46);
 var errors = __webpack_require__(33);
 
 /**
@@ -46765,7 +46758,7 @@ module.exports = RequestManager;
 
 
 /***/ }),
-/* 211 */
+/* 210 */
 /***/ (function(module, exports) {
 
 
@@ -46780,7 +46773,7 @@ module.exports = Settings;
 
 
 /***/ }),
-/* 212 */
+/* 211 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46879,7 +46872,7 @@ module.exports = IsSyncing;
 
 
 /***/ }),
-/* 213 */
+/* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -46904,8 +46897,8 @@ module.exports = IsSyncing;
  * @date 2015
  */
 
-var Iban = __webpack_require__(47);
-var exchangeAbi = __webpack_require__(184);
+var Iban = __webpack_require__(48);
+var exchangeAbi = __webpack_require__(183);
 
 /**
  * Should be used to make Iban transfer
@@ -46977,7 +46970,7 @@ module.exports = transfer;
 
 
 /***/ }),
-/* 214 */
+/* 213 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47000,7 +46993,7 @@ module.exports = {
 
 
 /***/ }),
-/* 215 */
+/* 214 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -47074,25 +47067,25 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 216 */
+/* 215 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"name","outputs":[{"name":"o_name","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"content","outputs":[{"name":"","type":"bytes32"}],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"subRegistrar","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_registrar","type":"address"}],"name":"setSubRegistrar","outputs":[],"type":"function"},{"constant":false,"inputs":[],"name":"Registrar","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"},{"name":"_primary","type":"bool"}],"name":"setAddress","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_content","type":"bytes32"}],"name":"setContent","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"disown","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_winner","type":"address"}],"name":"AuctionEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_name","type":"bytes32"},{"indexed":false,"name":"_bidder","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"NewBid","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"},{"indexed":true,"name":"addr","type":"address"}],"name":"PrimaryChanged","type":"event"}]
 
 /***/ }),
-/* 217 */
+/* 216 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"owner","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_refund","type":"address"}],"name":"disown","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"_name","type":"bytes32"}],"name":"addr","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"}],"name":"reserve","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"_name","type":"bytes32"},{"name":"_a","type":"address"}],"name":"setAddr","outputs":[],"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"name","type":"bytes32"}],"name":"Changed","type":"event"}]
 
 /***/ }),
-/* 218 */
+/* 217 */
 /***/ (function(module, exports) {
 
 module.exports = [{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"value","type":"uint256"}],"name":"transfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"from","type":"bytes32"},{"name":"to","type":"address"},{"name":"indirectId","type":"bytes32"},{"name":"value","type":"uint256"}],"name":"icapTransfer","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"to","type":"bytes32"}],"name":"deposit","outputs":[],"payable":true,"type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"AnonymousDeposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"bytes32"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"indirectId","type":"bytes32"},{"indexed":false,"name":"value","type":"uint256"}],"name":"IcapTransfer","type":"event"}]
 
 /***/ }),
-/* 219 */
+/* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47124,7 +47117,7 @@ module.exports = SolidityTypeAddress;
 
 
 /***/ }),
-/* 220 */
+/* 219 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47156,7 +47149,7 @@ module.exports = SolidityTypeBool;
 
 
 /***/ }),
-/* 221 */
+/* 220 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47191,7 +47184,7 @@ module.exports = SolidityTypeBytes;
 
 
 /***/ }),
-/* 222 */
+/* 221 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47217,7 +47210,7 @@ module.exports = SolidityTypeDynamicBytes;
 
 
 /***/ }),
-/* 223 */
+/* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47255,7 +47248,7 @@ module.exports = SolidityTypeInt;
 
 
 /***/ }),
-/* 224 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47293,7 +47286,7 @@ module.exports = SolidityTypeReal;
 
 
 /***/ }),
-/* 225 */
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47319,7 +47312,7 @@ module.exports = SolidityTypeString;
 
 
 /***/ }),
-/* 226 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47357,7 +47350,7 @@ module.exports = SolidityTypeUInt;
 
 
 /***/ }),
-/* 227 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var f = __webpack_require__(9);
@@ -47395,7 +47388,7 @@ module.exports = SolidityTypeUReal;
 
 
 /***/ }),
-/* 228 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47411,13 +47404,13 @@ if (typeof XMLHttpRequest === 'undefined') {
 
 
 /***/ }),
-/* 229 */
+/* 228 */
 /***/ (function(module, exports) {
 
 module.exports = {"version":"0.20.7"}
 
 /***/ }),
-/* 230 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -47453,23 +47446,23 @@ module.exports = {"version":"0.20.7"}
  * @date 2014
  */
 
-var RequestManager = __webpack_require__(245);
+var RequestManager = __webpack_require__(244);
 var Iban = __webpack_require__(52);
-var Eth = __webpack_require__(239);
-var DB = __webpack_require__(238);
-var Shh = __webpack_require__(242);
-var Net = __webpack_require__(240);
-var Personal = __webpack_require__(241);
-var Swarm = __webpack_require__(243);
-var Settings = __webpack_require__(246);
-var version = __webpack_require__(229);
+var Eth = __webpack_require__(238);
+var DB = __webpack_require__(237);
+var Shh = __webpack_require__(241);
+var Net = __webpack_require__(239);
+var Personal = __webpack_require__(240);
+var Swarm = __webpack_require__(242);
+var Settings = __webpack_require__(245);
+var version = __webpack_require__(228);
 var utils = __webpack_require__(4);
 var sha3 = __webpack_require__(35);
-var extend = __webpack_require__(234);
-var Batch = __webpack_require__(232);
+var extend = __webpack_require__(233);
+var Batch = __webpack_require__(231);
 var Property = __webpack_require__(27);
-var HttpProvider = __webpack_require__(236);
-var IpcProvider = __webpack_require__(237);
+var HttpProvider = __webpack_require__(235);
+var IpcProvider = __webpack_require__(236);
 var BigNumber = __webpack_require__(36);
 
 
@@ -47581,7 +47574,7 @@ module.exports = Web3;
 
 
 /***/ }),
-/* 231 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -47674,7 +47667,7 @@ module.exports = AllSolidityEvents;
 
 
 /***/ }),
-/* 232 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -47746,7 +47739,7 @@ module.exports = Batch;
 
 
 /***/ }),
-/* 233 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -47774,8 +47767,8 @@ module.exports = Batch;
 var utils = __webpack_require__(4);
 var coder = __webpack_require__(62);
 var SolidityEvent = __webpack_require__(87);
-var SolidityFunction = __webpack_require__(235);
-var AllEvents = __webpack_require__(231);
+var SolidityFunction = __webpack_require__(234);
+var AllEvents = __webpack_require__(230);
 
 /**
  * Should be called to encode constructor params
@@ -48062,7 +48055,7 @@ module.exports = ContractFactory;
 
 
 /***/ }),
-/* 234 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var formatters = __webpack_require__(16);
@@ -48116,7 +48109,7 @@ module.exports = extend;
 
 
 /***/ }),
-/* 235 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -48405,7 +48398,7 @@ module.exports = SolidityFunction;
 
 
 /***/ }),
-/* 236 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -48441,10 +48434,10 @@ if (typeof window !== 'undefined' && window.XMLHttpRequest) {
   XMLHttpRequest = window.XMLHttpRequest; // jshint ignore: line
 // node
 } else {
-  XMLHttpRequest = __webpack_require__(228).XMLHttpRequest; // jshint ignore: line
+  XMLHttpRequest = __webpack_require__(227).XMLHttpRequest; // jshint ignore: line
 }
 
-var XHR2 = __webpack_require__(250).XMLHttpRequest; // jshint ignore: line
+var XHR2 = __webpack_require__(249).XMLHttpRequest; // jshint ignore: line
 
 /**
  * HttpProvider should be used to send rpc calls over http
@@ -48576,7 +48569,7 @@ module.exports = HttpProvider;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 237 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -48790,7 +48783,7 @@ module.exports = IpcProvider;
 
 
 /***/ }),
-/* 238 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -48862,7 +48855,7 @@ module.exports = DB;
 
 
 /***/ }),
-/* 239 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -48896,13 +48889,13 @@ var utils = __webpack_require__(4);
 var Method = __webpack_require__(19);
 var Property = __webpack_require__(27);
 var c = __webpack_require__(50);
-var Contract = __webpack_require__(233);
+var Contract = __webpack_require__(232);
 var watches = __webpack_require__(53);
 var Filter = __webpack_require__(51);
-var IsSyncing = __webpack_require__(247);
-var namereg = __webpack_require__(244);
+var IsSyncing = __webpack_require__(246);
+var namereg = __webpack_require__(243);
 var Iban = __webpack_require__(52);
-var transfer = __webpack_require__(248);
+var transfer = __webpack_require__(247);
 
 var blockCall = function (args) {
     return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "eth_getBlockByHash" : "eth_getBlockByNumber";
@@ -49223,7 +49216,7 @@ module.exports = Eth;
 
 
 /***/ }),
-/* 240 */
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -49281,7 +49274,7 @@ module.exports = Net;
 
 
 /***/ }),
-/* 241 */
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49403,7 +49396,7 @@ module.exports = Personal;
 
 
 /***/ }),
-/* 242 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -49553,7 +49546,7 @@ module.exports = Shh;
 
 
 /***/ }),
-/* 243 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49705,7 +49698,7 @@ module.exports = Swarm;
 
 
 /***/ }),
-/* 244 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -49730,8 +49723,8 @@ module.exports = Swarm;
  * @date 2015
  */
 
-var globalRegistrarAbi = __webpack_require__(216);
-var icapRegistrarAbi= __webpack_require__(217);
+var globalRegistrarAbi = __webpack_require__(215);
+var icapRegistrarAbi= __webpack_require__(216);
 
 var globalNameregAddress = '0xc6d9d2cd449a754c494264e1809c50e34d64562b';
 var icapNameregAddress = '0xa1a111bc074c9cfa781f0c38e63bd51c91b8af00';
@@ -49750,7 +49743,7 @@ module.exports = {
 
 
 /***/ }),
-/* 245 */
+/* 244 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -50021,7 +50014,7 @@ module.exports = RequestManager;
 
 
 /***/ }),
-/* 246 */
+/* 245 */
 /***/ (function(module, exports) {
 
 
@@ -50036,7 +50029,7 @@ module.exports = Settings;
 
 
 /***/ }),
-/* 247 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -50135,7 +50128,7 @@ module.exports = IsSyncing;
 
 
 /***/ }),
-/* 248 */
+/* 247 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -50161,7 +50154,7 @@ module.exports = IsSyncing;
  */
 
 var Iban = __webpack_require__(52);
-var exchangeAbi = __webpack_require__(218);
+var exchangeAbi = __webpack_require__(217);
 
 /**
  * Should be used to make Iban transfer
@@ -50233,7 +50226,7 @@ module.exports = transfer;
 
 
 /***/ }),
-/* 249 */
+/* 248 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50284,7 +50277,7 @@ exports.SyntaxError = SyntaxError;
 //# sourceMappingURL=errors.js.map
 
 /***/ }),
-/* 250 */
+/* 249 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50293,13 +50286,13 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(253));
+__export(__webpack_require__(252));
 var xml_http_request_event_target_1 = __webpack_require__(63);
 exports.XMLHttpRequestEventTarget = xml_http_request_event_target_1.XMLHttpRequestEventTarget;
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 251 */
+/* 250 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50320,7 +50313,7 @@ exports.ProgressEvent = ProgressEvent;
 //# sourceMappingURL=progress-event.js.map
 
 /***/ }),
-/* 252 */
+/* 251 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50405,7 +50398,7 @@ exports.XMLHttpRequestUpload = XMLHttpRequestUpload;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 253 */
+/* 252 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50430,14 +50423,14 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var http = __webpack_require__(75);
-var https = __webpack_require__(123);
-var os = __webpack_require__(128);
+var https = __webpack_require__(122);
+var os = __webpack_require__(127);
 var url = __webpack_require__(60);
-var progress_event_1 = __webpack_require__(251);
-var errors_1 = __webpack_require__(249);
+var progress_event_1 = __webpack_require__(250);
+var errors_1 = __webpack_require__(248);
 var xml_http_request_event_target_1 = __webpack_require__(63);
-var xml_http_request_upload_1 = __webpack_require__(252);
-var Cookie = __webpack_require__(96);
+var xml_http_request_upload_1 = __webpack_require__(251);
+var Cookie = __webpack_require__(95);
 var XMLHttpRequest = /** @class */ (function (_super) {
     __extends(XMLHttpRequest, _super);
     function XMLHttpRequest(options) {
@@ -50859,14 +50852,14 @@ XMLHttpRequest.prototype.nodejsBaseUrl = null;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 254 */
+/* 253 */
 /***/ (function(module, exports) {
 
 module.exports = XMLHttpRequest;
 
 
 /***/ }),
-/* 255 */
+/* 254 */
 /***/ (function(module, exports) {
 
 module.exports = extend
@@ -50891,13 +50884,13 @@ function extend() {
 
 
 /***/ }),
-/* 256 */
+/* 255 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 257 */
+/* 256 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
