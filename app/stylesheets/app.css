@@ -22,6 +22,7 @@ body {
   width: 100vw;
   height: 60vh;
   background-color: #ffffff;
+  margin: 0 auto;
 }
 
 .bottom-header {
@@ -36,6 +37,14 @@ body {
   display: block;
   font-size: 10vw;
   text-align: center;
+}
+
+.info {
+  display: block;
+  font-size: 3vw;
+  width: 80vw;
+  text-align: center;
+  color: #272727;
 }
 
 .img-header {

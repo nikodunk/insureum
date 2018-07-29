@@ -36,14 +36,14 @@ body {
 }
 
 button {
+    font-family: 'Chivo', sans-serif;
     display: block;
     margin: 0 auto;
     padding: 0;
     border: none;
-    font: inherit;
-    color: inherit;
     background: white;
     font-size: 4vw;
+    font-weight: 300;
     padding: 1vh 1vw;
     margin-top: 0.2vh;
     cursor: pointer;
