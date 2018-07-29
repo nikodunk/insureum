@@ -2,21 +2,16 @@
 
 body {
   font-family: 'Chivo', sans-serif;
-
 }
 
 .container{
   position: relative;
-  max-width: 800px !important;
-  margin: 0 auto;
-    
 }
 
 a{ text-decoration: none; }
 
 .top-header{
-  background-color: #2ffb99;
-  min-height: 100px;
+  
 }
 
 .header {
@@ -29,7 +24,6 @@ a{ text-decoration: none; }
 
 .bottom-header{
   padding: 20px;
-  background-color: #2ffb99;
 }
 
 
@@ -54,7 +48,6 @@ a{ text-decoration: none; }
   /*padding: 1vh;*/
   /*width: 50vw;*/
   /*height: 5vh;*/
-  padding: 3px;
   background-color: #fff;
   /*transform: translateY(35%);*/
   border-radius: 10px;
