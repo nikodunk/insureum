@@ -39,7 +39,7 @@ window.App = {
       accounts = accs;
       account = accounts[0];
 
-      self.refreshBalance();
+      self.getBalance();
     });
   },
 
@@ -65,26 +65,23 @@ window.App = {
     });
   },
 
-  payIn: function(var) {
+  payIn: function(value) {
     var self = this;
     var meta;
-    
+
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.getBalance.call();
-    }).then(function(value) {
-      var balance_element = document.getElementById("balance");
-      balance_element.innerHTML = value.valueOf();
-      console.log(value.valueOf())
+      return meta.payIn({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+    }).then(function() {
+      self.getBalance()
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error getting balance; see log.");
     });
   },
 
-  payOut: function(var) {
-    var self = this;
-    var meta;
+  payOut: function() {
+    return
 
   },
 
