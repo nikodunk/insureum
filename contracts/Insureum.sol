@@ -12,25 +12,21 @@ contract Insureum {
         arbiter = _arbiter;
     }
 
-    function payIn() public payable {
+    function payPremium() public payable {
 
     }
 
     /// Confirm that you (the buyer) received the item.
     /// This will release the locked ether.
-    function payoutToSeller() public {
-        if(msg.sender == buyer || msg.sender == arbiter ){
-            seller.transfer(this.balance);
-        }
-    }
-
-    function payoutToBuyer() public {
-        if(msg.sender == seller || msg.sender == arbiter ){
-            buyer.transfer(this.balance);
-        }
+    function payoutToHospital() public {
+        msg.sender.transfer(this.balance);
     }
 
     function getBalance() public constant returns (uint) {
+        return this.balance;
+    }
+
+    function getBalanceOfUser(address) public constant returns (uint) {
         return this.balance;
     }
 }

@@ -71,7 +71,7 @@ window.App = {
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.payIn({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+      return meta.payPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
     }).then(function() {
       self.getBalance()
     }).catch(function(e) {
@@ -84,7 +84,15 @@ window.App = {
     var self = this;
     var meta;
 
-    //return meta.payoutToSeller({from: web3.eth.accounts[0]})
+    MetaCoin.deployed().then(function(instance) {
+      meta = instance;
+      return meta.payoutToHospital({from: web3.eth.accounts[0]})
+    }).then(function() {
+      self.getBalance()
+    }).catch(function(e) {
+      console.log(e);
+      self.setStatus("Error paying out balance; see log.");
+    });
 
   },
 
