@@ -70,9 +70,10 @@ window.App = {
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.payPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+      return meta.planOneTwoThree({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
     }).then(function() {
       self.getBalance()
+      location.href = '/user.html';
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error getting balance; see log.");
