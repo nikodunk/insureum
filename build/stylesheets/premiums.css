@@ -30,7 +30,9 @@ body {
 .plan-header {
     font-size: 5vw;
     text-align: center;
-    padding-top: 2vh;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    background-color: #2FFB99;
 }
 
 button {
@@ -48,5 +50,5 @@ button {
 }
 
 button:hover {
-    background: rgb(214, 214, 214);
+    background: #dfdfdf;
 }
