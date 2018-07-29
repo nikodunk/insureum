@@ -1,0 +1,40 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Chivo', sans-serif;
+}
+
+.header {
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    display: block;
+    font-size: 10vw;
+    text-align: center;
+}
+
+.button {
+    display: block;
+    margin: 0.5vh auto;
+    padding: 1vh;
+    width: 50vw;
+    height: 5vh;
+    background-color: #2FFB99;
+    transform: translateY(35%);
+    border-radius: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.button-text {
+    font-size: 7vw;
+    display: block;
+    text-align: center;
+    transform: translateY(25%);
+}
+
+.arrow-svg {
+    width: 2vh;
+}

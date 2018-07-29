@@ -1,18 +1,47 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Welcome</title>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-  <script src="./app.js"></script>
+    <title>Insureum</title>
+    <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
+    <link href='./build/stylesheets/claim.css' rel='stylesheet' type='text/css'>
+    <script src="./build/javascripts/app.js"></script>
 </head>
+
 <body>
-  <h1>Insureum</h1>
-  <h3>File a Claim<span class="black"></h3>
-
-  <h3>Insureum has <span class="black"><span id="balance"></span> Eth </span>available.</h3>
-
-  <input id="amount" placeholder="Amount of Ether to release"/>
-  <button id="send" onclick="App.payOut()">Release Payment</button>
-
+    <div class="container">
+        <div class="header">Insureum for hospitals</div>
+        <div class="sub-header">Premium transaction completed successfully</div>
+        <a href="#" class="button" data-amount="0.1">
+            <div class="button-text-container">
+                <p class="button-text">Continue
+                    <img class="arrow-svg" src="./build/img/arrow.svg">
+                </p>
+            </div>
+        </a>
+        <a href="#" class="button" data-amount="0.2">
+            <div class="button-text-container">
+                <p class="button-text">Continue
+                    <img class="arrow-svg" src="./build/img/arrow.svg">
+                </p>
+            </div>
+        </a>
+        <a href="#" class="button" data-amount="0.3">
+            <div class="button-text-container">
+                <p class="button-text">Continue
+                    <img class="arrow-svg" src="./build/img/arrow.svg">
+                </p>
+            </div>
+        </a>
+    </div>
 </body>
+<script>
+    let elems = document.querySelector('.button');
+    for(let elem in elems) {
+        elem.addEventListener('click', (event) => {
+            App.payOut(elem.dataset.amount);
+        })
+    }
+</script>
+
 </html>

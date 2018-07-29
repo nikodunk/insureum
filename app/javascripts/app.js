@@ -39,7 +39,7 @@ window.App = {
       accounts = accs;
       account = accounts[0];
 
-      self.getBalance();
+      self.getBalanceOfContract();
     });
   },
 
@@ -86,9 +86,9 @@ window.App = {
     localStorage.setItem('type', `${value}`);
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      return meta.payInPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
+      return meta.PayInPremium({from: web3.eth.accounts[0], value: web3.toWei(value, 'ether') })
     }).then(function() {
-      self.getBalance()
+      self.getBalanceOfContract()
       location.href = '/user.html';
     }).catch(function(e) {
       console.log(e);
@@ -96,16 +96,15 @@ window.App = {
     });
   },
 
-  payOut: function() {
+  payOut: function(amount) {
     var self = this;
     var meta;
 
     MetaCoin.deployed().then(function(instance) {
       meta = instance;
-      amount = document.getElementById("amount").value;
       return meta.claim(web3.toWei(amount, 'ether'), {from: web3.eth.accounts[0] })
     }).then(function() {
-      self.getBalance()
+      self.getBalanceOfContract()
     }).catch(function(e) {
       console.log(e);
       self.setStatus("Error paying out balance; see log.");
@@ -128,4 +127,5 @@ window.addEventListener('load', function() {
   }
 
   App.start();
+  App.getBalanceOfUser();
 });
