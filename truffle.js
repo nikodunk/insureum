@@ -3,7 +3,7 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
-var mnemonic = "virtual armed pumpkin stadium crucial sign shop nuclear purpose shield cave tomato"; // DELETE ME!!!!
+var mnemonic = "asdfasdf"; // DELETE ME!!!!
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
 // DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!// DELETE ME!!!!
