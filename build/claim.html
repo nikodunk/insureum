@@ -6,10 +6,12 @@
     <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
     <link href='./build/stylesheets/app.css' rel='stylesheet' type='text/css'>
     <script src="./app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center">
         <a href="/"><div class="header">Insureum for hospitals</div></a>
 
         <div class="sub-header" id="input">Get Reimbursed</div>
@@ -22,20 +24,15 @@
             <input class="input" id="input" placeholder="0.5 eth" />
         </div>
         <br / >
-        <div>
-            <button onclick="App.payOut()" style="margin-left: 65px; width: 200px" class="plan-header" data-amount="0.1">
-                    Claim <img class="arrow-svg" src="./build/img/arrow.svg">
+            <div class="button"> 
+            <button onclick="App.payOut()" data-amount="0.1">
+                    <p class="button-text">
+                        Claim <img class="arrow-svg" src="./build/img/arrow.svg">
+                    </p>
             </button>
-        </div>
+            </div>
+        
     </div>
 </body>
-<!-- <script>
-    let elems = document.querySelector('.button');
-    for(let elem in elems) {
-        elem.addEventListener('click', (event) => {
-            App.payOut(elem.dataset.amount);
-        })
-    }
-</script>
- -->
+
 </html>

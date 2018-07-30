@@ -5,17 +5,18 @@
   <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
   <link href='./build/stylesheets/app.css' rel='stylesheet' type='text/css'>
   <script src="./app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="text-align: center; max-width: 800px; margin: 0 auto">
       <a href="/"><div class="header"><img class="checkmark" src="./build/img/checkmark.svg">  Success!</div></a>
-      <div class="sub-header">You're insured for August.</div>
+      <div class="info">You're insured for August.</div>
       <br /><br />
-      <div class="sub-header">Contract balance: <span id="balanceOfContract"></span> ETH</div>
+      <div class="info">Contract balance: <span id="balanceOfContract"></span> ETH</div>
       <br />
-      <div class="sub-header">Premiums paid this year: <span id="balanceOfUser"></span> ETH</div>
+      <div class="info">Premiums paid this year: <span id="balanceOfUser"></span> ETH</div>
     </div>
     
 </body>
