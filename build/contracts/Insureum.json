@@ -78,14 +78,14 @@
       "type": "function"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b5033600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506103e6806100616000396000f30060806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029",
-  "deployedBytecode": "0x60806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820230f105d83d2ae96884ca10dc3105117056abd697030dae0e7a6f7ce6e850c770029",
+  "bytecode": "0x608060405234801561001057600080fd5b5033600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506103e6806100616000396000f30060806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820445cada923dce7f9f2afe92be53b53784a0df08b2743a143a3bb3c2fabbb25b30029",
+  "deployedBytecode": "0x60806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806317d0d7bb146100725780632296888514610090578063379607f5146100bb57806379982de4146100e8578063aa2fedde14610113575b600080fd5b61007a61016a565b6040518082815260200191505060405180910390f35b34801561009c57600080fd5b506100a5610289565b6040518082815260200191505060405180910390f35b3480156100c757600080fd5b506100e6600480360381019080803590602001909291905050506102a8565b005b3480156100f457600080fd5b506100fd61034e565b6040518082815260200191505060405180910390f35b34801561011f57600080fd5b50610128610394565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401101515156101f957600080fd5b346000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055506000803373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b60003073ffffffffffffffffffffffffffffffffffffffff1631905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561030457600080fd5b3373ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561034a573d6000803e3d6000fd5b5050565b60008060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905090565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820445cada923dce7f9f2afe92be53b53784a0df08b2743a143a3bb3c2fabbb25b30029",
   "sourceMap": "26:866:0:-;;;135:60;8:9:-1;5:2;;;30:1;27;20:12;5:2;135:60:0;178:10;167:8;;:21;;;;;;;;;;;;;;;;;;26:866;;;;;;",
   "deployedSourceMap": "26:866:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;;;;;;;;;;;;;;;;;;;;;;;660:113;;8:9:-1;5:2;;;30:1;27;20:12;5:2;660:113:0;;;;;;;;;;;;;;;;;;;;;;;518:136;;8:9:-1;5:2;;;30:1;27;20:12;5:2;518:136:0;;;;;;;;;;;;;;;;;;;;;;;;;;779:111;;8:9:-1;5:2;;;30:1;27;20:12;5:2;779:111:0;;;;;;;;;;;;;;;;;;;;;;;105:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;105:23:0;;;;;;;;;;;;;;;;;;;;;;;;;;;201:311;249:7;389:13;:25;403:10;389:25;;;;;;;;;;;;;;;;375:9;347:13;:25;361:10;347:25;;;;;;;;;;;;;;;;:37;346:68;;338:77;;;;;;;;454:9;425:13;:25;439:10;425:25;;;;;;;;;;;;;;;;:38;;;;;;;;;;;480:13;:25;494:10;480:25;;;;;;;;;;;;;;;;473:32;;201:311;:::o;660:113::-;717:7;752:4;744:21;;;737:28;;660:113;:::o;518:136::-;593:8;;;;;;;;;;;579:22;;:10;:22;;;571:31;;;;;;;;612:10;:19;;:35;632:14;612:35;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;612:35:0;518:136;:::o;779:111::-;832:7;858:13;:25;872:10;858:25;;;;;;;;;;;;;;;;851:32;;779:111;:::o;105:23::-;;;;;;;;;;;;;:::o",
   "source": "pragma solidity ^0.4.17;\n\ncontract Insureum {\n\n    mapping (address => uint) private insurancePlan;\n\n    address public hospital;\n\n    constructor () public {\n        hospital = msg.sender;\n    }\n\n    function PayInPremium() public payable returns (uint256) {\n        // Here we are making sure that there isn't an overflow issue\n        require((insurancePlan[msg.sender] + msg.value) >= insurancePlan[msg.sender]);\n        insurancePlan[msg.sender] += msg.value;\n        return insurancePlan[msg.sender];\n    }\n\n    function claim(uint withdrawAmount) public {\n        require(msg.sender == hospital);\n        msg.sender.transfer(withdrawAmount);\n    }\n\n    function getBalanceOfContract() public constant returns (uint256) {\n         return address(this).balance;\n     }\n\n    function getBalanceOfUser() public constant returns (uint256) {\n        return insurancePlan[msg.sender];\n    }\n}",
-  "sourcePath": "/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol",
+  "sourcePath": "/Users/nicholasdunkel/Desktop/insureum/contracts/Insureum.sol",
   "ast": {
-    "absolutePath": "/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol",
+    "absolutePath": "/Users/nicholasdunkel/Desktop/insureum/contracts/Insureum.sol",
     "exportedSymbols": {
       "Insureum": [
         95
@@ -226,7 +226,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "178:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -345,7 +345,7 @@
                                     "name": "msg",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 110,
+                                    "referencedDeclaration": 167,
                                     "src": "361:3:0",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_magic_message",
@@ -387,7 +387,7 @@
                                   "name": "msg",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 110,
+                                  "referencedDeclaration": 167,
                                   "src": "375:3:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_magic_message",
@@ -454,7 +454,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 110,
+                              "referencedDeclaration": 167,
                               "src": "403:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -504,10 +504,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        113,
-                        114
+                        170,
+                        171
                       ],
-                      "referencedDeclaration": 113,
+                      "referencedDeclaration": 170,
                       "src": "338:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -564,7 +564,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 110,
+                          "referencedDeclaration": 167,
                           "src": "439:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -606,7 +606,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "454:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -662,7 +662,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "494:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -784,7 +784,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 110,
+                            "referencedDeclaration": 167,
                             "src": "579:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -838,10 +838,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        113,
-                        114
+                        170,
+                        171
                       ],
-                      "referencedDeclaration": 113,
+                      "referencedDeclaration": 170,
                       "src": "571:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -899,7 +899,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 110,
+                          "referencedDeclaration": 167,
                           "src": "612:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -1026,7 +1026,7 @@
                           "name": "this",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 123,
+                          "referencedDeclaration": 180,
                           "src": "752:4:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_contract$_Insureum_$95",
@@ -1174,7 +1174,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "872:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1275,7 +1275,7 @@
     "src": "0:892:0"
   },
   "legacyAST": {
-    "absolutePath": "/Users/nikolai/Desktop/stuff/Produce/project_hackathons/Hackathon22 angelhack/insureum/contracts/Insureum.sol",
+    "absolutePath": "/Users/nicholasdunkel/Desktop/insureum/contracts/Insureum.sol",
     "exportedSymbols": {
       "Insureum": [
         95
@@ -1416,7 +1416,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "178:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1535,7 +1535,7 @@
                                     "name": "msg",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 110,
+                                    "referencedDeclaration": 167,
                                     "src": "361:3:0",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_magic_message",
@@ -1577,7 +1577,7 @@
                                   "name": "msg",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 110,
+                                  "referencedDeclaration": 167,
                                   "src": "375:3:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_magic_message",
@@ -1644,7 +1644,7 @@
                               "name": "msg",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 110,
+                              "referencedDeclaration": 167,
                               "src": "403:3:0",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_message",
@@ -1694,10 +1694,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        113,
-                        114
+                        170,
+                        171
                       ],
-                      "referencedDeclaration": 113,
+                      "referencedDeclaration": 170,
                       "src": "338:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1754,7 +1754,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 110,
+                          "referencedDeclaration": 167,
                           "src": "439:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -1796,7 +1796,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "454:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1852,7 +1852,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "494:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -1974,7 +1974,7 @@
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 110,
+                            "referencedDeclaration": 167,
                             "src": "579:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_magic_message",
@@ -2028,10 +2028,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        113,
-                        114
+                        170,
+                        171
                       ],
-                      "referencedDeclaration": 113,
+                      "referencedDeclaration": 170,
                       "src": "571:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -2089,7 +2089,7 @@
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 110,
+                          "referencedDeclaration": 167,
                           "src": "612:3:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
@@ -2216,7 +2216,7 @@
                           "name": "this",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 123,
+                          "referencedDeclaration": 180,
                           "src": "752:4:0",
                           "typeDescriptions": {
                             "typeIdentifier": "t_contract$_Insureum_$95",
@@ -2364,7 +2364,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 110,
+                        "referencedDeclaration": 167,
                         "src": "872:3:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -2466,16 +2466,16 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+    "version": "0.4.23+commit.124ca40d.Emscripten.clang"
   },
   "networks": {
     "4447": {
       "events": {},
       "links": {},
-      "address": "0xdda6327139485221633a1fcd65f4ac932e60a2e1",
-      "transactionHash": "0xc6d3e8b4b234e51ab9ba8c581f970bf8c22195451ec44e9c9295ccead2625083"
+      "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10",
+      "transactionHash": "0xc67fb901ed0643ae7e0a8e4cf06e359ee9e18cccf4989ba53bf7780f133f8e39"
     }
   },
-  "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-29T20:31:16.194Z"
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-07-31T18:46:37.763Z"
 }
