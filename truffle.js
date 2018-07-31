@@ -8,15 +8,17 @@ require('babel-register')
 module.exports = {
   networks: {
     development: {
-      host: 'localhost',
-      port: 7545,
-      network_id: '*' // Match any network id
-    },
-    rinkeby: {
-      provider: new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/c7ccca1b03e943ada5f6b22ed5cc3cc0"),
-      network_id: '*',  
+      provider: function() { 
+        return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3/c7ccca1b03e943ada5f6b22ed5cc3cc0')
+      },
+      network_id: '3',  
       gas: 4500000,
       gasPrice: 25000000000
-    }
+    }//,
+    // development: {
+    //   host: 'localhost',
+    //   port: 7545,
+    //   network_id: '*' // Match any network id
+    // },
   }
 }
