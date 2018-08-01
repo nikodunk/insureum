@@ -8,8 +8,9 @@ Website: https://insureum.netlify.com/
 	truffle migrate
 	npm run build
 
-	heroku buildpacks:set https://github.com/kreativgebiet/heroku-buildpack-webpack
 
+	heroku buildpacks:set https://github.com/kreativgebiet/heroku-buildpack-webpack
 	heroku buildpacks:add --index 1 heroku/nodejs
+
 
 	git push heroku master
