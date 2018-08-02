@@ -1,3 +1,0 @@
-[submodule "build"]
-	path = include/build
-	url = git://github.com/nikodunk/insureum.git
